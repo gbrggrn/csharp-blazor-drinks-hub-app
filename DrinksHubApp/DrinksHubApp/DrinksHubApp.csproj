@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -9,7 +9,9 @@
   <ItemGroup>
     <ProjectReference Include="..\DrinksHubApp.Client\DrinksHubApp.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.21" />
-  </ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0"/>  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Services\" />

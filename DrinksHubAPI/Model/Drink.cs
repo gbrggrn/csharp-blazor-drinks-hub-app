@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DrinksHubAPI.Data
+namespace DrinksHubAPI.Model
 {
 	public class Drink
 	{
-		public int id { get; set; }
+		public int Id { get; set; }
 
 		[Required]
 		[MaxLength(100)]
-		public string Name { get; set; }
+		public string Name { get; set; } = string.Empty;
 
 		[Required]
 		[MaxLength(500)]
