@@ -15,7 +15,16 @@ namespace DrinksHubAPI.DataAccess
 
 		public async Task AddAsync(Drink drink)
 		{
-			await _context.Drinks.AddAsync(drink);
+			var newDrink = new Drink
+			{
+				Name = drink.Name,
+				Description = drink.Description,
+				Category = drink.Category,
+				Type = drink.Type,
+				ImageUrl = drink.ImageUrl
+			};
+
+			await _context.Drinks.AddAsync(newDrink);
 			await _context.SaveChangesAsync();
 		}
 
@@ -40,9 +49,18 @@ namespace DrinksHubAPI.DataAccess
 			return await _context.Drinks.FindAsync(id);
 		}
 
-		public async Task UpdateAsync(Drink drink)
+		public async Task UpdateAsync(int id, Drink drink)
 		{
-			_context.Drinks.Update(drink);
+			var drinkUpdate = await _context.Drinks.Where(d => d.Id == id).FirstAsync();
+
+			drinkUpdate.Name = drink.Name;
+			drinkUpdate.Description = drink.Description;
+			drinkUpdate.Category = drink.Category;
+			drinkUpdate.Type = drink.Type;
+			drinkUpdate.ImageUrl = drink.ImageUrl;
+
+			_context.Drinks.Update(drinkUpdate);
+
 			await _context.SaveChangesAsync();
 		}
 	}

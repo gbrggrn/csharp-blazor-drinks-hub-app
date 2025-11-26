@@ -7,7 +7,7 @@ namespace DrinksHubAPI.DataAccess
 		Task<List<Drink>> GetAllAsync();
 		Task<Drink?> GetByIdAsync(int id);
 		Task AddAsync(Drink drink);
-		Task UpdateAsync(Drink drink);
+		Task UpdateAsync(int id, Drink drink);
 		Task DeleteAsync(int id);
 	}
 }
