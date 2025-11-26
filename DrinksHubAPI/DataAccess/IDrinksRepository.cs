@@ -1,4 +1,5 @@
-﻿using DrinksHubAPI.Model;
+﻿using DrinksHubAPI.DTOs;
+using DrinksHubAPI.Model;
 
 namespace DrinksHubAPI.DataAccess
 {
@@ -6,8 +7,8 @@ namespace DrinksHubAPI.DataAccess
 	{
 		Task<List<Drink>> GetAllAsync();
 		Task<Drink?> GetByIdAsync(int id);
-		Task AddAsync(Drink drink);
-		Task UpdateAsync(int id, Drink drink);
+		Task AddAsync(Drink drinkIn);
+		Task UpdateAsync(int id, Drink drinkIn);
 		Task DeleteAsync(int id);
 	}
 }

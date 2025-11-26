@@ -1,4 +1,5 @@
 ﻿using DrinksHubAPI.Data;
+using DrinksHubAPI.DTOs;
 using DrinksHubAPI.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,18 +14,9 @@ namespace DrinksHubAPI.DataAccess
 			_context = context;
 		}
 
-		public async Task AddAsync(Drink drink)
+		public async Task AddAsync(Drink drinkIn)
 		{
-			var newDrink = new Drink
-			{
-				Name = drink.Name,
-				Description = drink.Description,
-				Category = drink.Category,
-				Type = drink.Type,
-				ImageUrl = drink.ImageUrl
-			};
-
-			await _context.Drinks.AddAsync(newDrink);
+			await _context.Drinks.AddAsync(drinkIn);
 			await _context.SaveChangesAsync();
 		}
 
@@ -46,20 +38,32 @@ namespace DrinksHubAPI.DataAccess
 
 		public async Task<Drink?> GetByIdAsync(int id)
 		{
-			return await _context.Drinks.FindAsync(id);
+			Drink? drink = await _context.Drinks.Where(d => d.Id == id).FirstOrDefaultAsync();
+
+			if (drink == null)
+			{
+				return null;
+			}
+
+			return drink;
 		}
 
 		public async Task UpdateAsync(int id, Drink drink)
 		{
-			var drinkUpdate = await _context.Drinks.Where(d => d.Id == id).FirstAsync();
+			Drink? drinkToUpdate = await _context.Drinks.Where(d => d.Id == id).FirstOrDefaultAsync();
 
-			drinkUpdate.Name = drink.Name;
-			drinkUpdate.Description = drink.Description;
-			drinkUpdate.Category = drink.Category;
-			drinkUpdate.Type = drink.Type;
-			drinkUpdate.ImageUrl = drink.ImageUrl;
+			if (drinkToUpdate == null)
+			{
+				throw new KeyNotFoundException($"Drink with ID {id} not found.");
+			}
 
-			_context.Drinks.Update(drinkUpdate);
+			drinkToUpdate.Name = drink.Name;
+			drinkToUpdate.Description = drink.Description;
+			drinkToUpdate.Category = drink.Category;
+			drinkToUpdate.Type = drink.Type;
+			drinkToUpdate.ImageUrl = drink.ImageUrl;
+
+			_context.Drinks.Update(drinkToUpdate);
 
 			await _context.SaveChangesAsync();
 		}

@@ -1,4 +1,5 @@
 ﻿using DrinksHubAPI.DataAccess;
+using DrinksHubAPI.DTOs;
 using DrinksHubAPI.Model;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -17,16 +18,24 @@ namespace DrinksHubAPI.Controllers
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateDrink(Drink drinkIn)
+		public async Task<IActionResult> CreateDrink([FromBody] DrinkDto drinkDtoIn)
 		{
-			if (drinkIn == null)
+			if (drinkDtoIn == null)
 			{
 				return BadRequest(new { Message = "Invalid drink data provided." });
 			}
 
-			await _drinksRepository.AddAsync(drinkIn);
+			var drink = new Drink {
+				Name = drinkDtoIn.Name,
+				Description = drinkDtoIn.Description,
+				Category = drinkDtoIn.Category,
+				Type = drinkDtoIn.Type,
+				ImageUrl = drinkDtoIn.ImageUrl
+			};
 
-			return Ok(new { Message = "This is a placeholder for adding a drink." });
+			await _drinksRepository.AddAsync(drink);
+
+			return Ok(new { Message = $"{drinkDtoIn.Name} successfully added." });
 		}
 
 		[HttpGet]
@@ -39,7 +48,21 @@ namespace DrinksHubAPI.Controllers
 				return NotFound(new { Message = "No drinks found." });
 			}
 
-			return Ok(drinks);
+			List<DrinkDto> drinkDtos = new List<DrinkDto>();
+
+			foreach(var drink in drinks)
+			{
+				drinkDtos.Add(new DrinkDto
+				{
+					Name = drink.Name,
+					Description = drink.Description,
+					Category = drink.Category,
+					Type = drink.Type,
+					ImageUrl = drink.ImageUrl
+				});
+			}
+
+			return Ok(drinkDtos);
 		}
 
 		[HttpGet("{id}")]
@@ -57,20 +80,46 @@ namespace DrinksHubAPI.Controllers
 				return NotFound(new { Message = $"Drink with ID: {id} not found." });
 			}
 
-			return Ok(drink);
+			var drinkDto = new DrinkDto
+			{
+				Name = drink.Name,
+				Description = drink.Description,
+				Category = drink.Category,
+				Type = drink.Type,
+				ImageUrl = drink.ImageUrl
+			};
+
+			return Ok(drinkDto);
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateDrink(int id, Drink drinkIn)
+		public async Task<IActionResult> UpdateDrink(int id, [FromBody] DrinkDto drinkDtoIn)
 		{
-			if (drinkIn == null)
+			if (drinkDtoIn == null)
 			{
 				return BadRequest(new { Message = "Invalid drink data provided." });
 			}
 
-			await _drinksRepository.UpdateAsync(id, drinkIn);
+			var drink = new Drink
+			{
+				Id = id,
+				Name = drinkDtoIn.Name,
+				Description = drinkDtoIn.Description,
+				Category = drinkDtoIn.Category,
+				Type = drinkDtoIn.Type,
+				ImageUrl = drinkDtoIn.ImageUrl
+			};
 
-			return Ok(new { Message = $"Drink {drinkIn.Name} successfully updated" });
+			try
+			{
+				await _drinksRepository.UpdateAsync(id, drink);
+			} 
+			catch (KeyNotFoundException kfe)
+			{
+				return NotFound(new { Message = kfe.Message });
+			}
+
+			return Ok(new { Message = $"Drink {drinkDtoIn.Name} successfully updated" });
 		}
 
 		[HttpDelete("{id}")]
