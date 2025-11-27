@@ -1,5 +1,7 @@
 ﻿
 using DrinksHubApp.DTOs;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Text;
 
 namespace DrinksHubApp.Services
 {
@@ -13,10 +15,52 @@ namespace DrinksHubApp.Services
 			_http.BaseAddress = new Uri("https://localhost:5119");
         }
 
-		public async Task<List<DrinkDto>> GetAllDrinksAsync()
+		public async Task<List<DrinkDto>> GetAllDrinksAsync(List<DrinkQueryActions> actions, 
+			DrinkSortOption? sortOption, 
+			DrinkFilterOption? filterOption,
+			DrinkFilterCategory? filterCategory,
+			DrinkFilterType? filterType,
+			String? searchParameter)
 		{
-			var drinks = await _http.GetFromJsonAsync<List<DrinkDto>>("api/Drinks");
+			// If no actions, return all drinks or an empty list early
+			if (actions == null || actions.Count == 0)
+			{
+				return await _http.GetFromJsonAsync<List<DrinkDto>>("api/Drinks") ?? new List<DrinkDto>();
+			}
 
+			StringBuilder request = new();
+
+			for (int i = 0; i < actions.Count; i++)
+			{
+				request.Append(i == 0 ? "?" : "&");
+
+				if (actions[i] == DrinkQueryActions.Search && !string.IsNullOrEmpty(searchParameter))
+				{
+					request.Append($"{DrinkQueryMapping.MapActions(actions[i])}={Uri.EscapeDataString(searchParameter)}");
+				}
+				else if (actions[i] == DrinkQueryActions.Sort && sortOption.HasValue)
+				{
+					request.Append($"{DrinkQueryMapping.MapActions(actions[i])}={DrinkQueryMapping.MapSortOptions(sortOption)}");
+				}
+				else if (actions[i] == DrinkQueryActions.Filter && filterOption.HasValue)
+				{
+					request.Append($"{DrinkQueryMapping.MapActions(actions[i])}={DrinkQueryMapping.MapFilterOptions(filterOption)}");
+					if (filterCategory != null)
+					{
+						request.Append($"&{DrinkQueryMapping.MapFilterCategory(filterCategory)}");
+					}
+					else if (filterType != null)
+					{
+						request.Append($"&{DrinkQueryMapping.MapFilterType(filterType)}");
+					}
+				}
+			}
+
+			String requestString = request.ToString();
+
+			var drinks = await _http.GetFromJsonAsync<List<DrinkDto>>($"api/Drinks{requestString}");
+
+			//If no drinks found, return empty list
 			return drinks ?? new List<DrinkDto>();
 		}
 

@@ -39,13 +39,66 @@ namespace DrinksHubAPI.Controllers
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> GetAllDrinks()
+		public async Task<IActionResult> GetAllDrinks(
+			[FromQuery] string? search,
+			[FromQuery] string? sortBy,
+			[FromQuery] string? filter,
+			[FromQuery] string? filterCategory,
+			[FromQuery] string? filterType)
 		{
 			List<Drink> drinks = await _drinksRepository.GetAllAsync();
 
+			// Check if drinks list is empty
 			if (drinks == null || !drinks.Any())
 			{
 				return NotFound(new { Message = "No drinks found." });
+			}
+
+			// Apply search
+			if (!string.IsNullOrEmpty(search))
+			{
+				drinks = drinks.Where(d => 
+					d.Name.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+					d.Description.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+					d.Category.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+					d.Type.Contains(search, StringComparison.OrdinalIgnoreCase))
+					.ToList();
+			}
+
+			// Apply sorting
+			if (!string.IsNullOrEmpty(sortBy))
+			{
+				drinks = sortBy.ToLower() switch
+				{
+					"nameDesc" => drinks.OrderByDescending(d => d.Name).ToList(),
+					"nameAsc" => drinks.OrderBy(d => d.Name).ToList(),
+					"categoryDesc" => drinks.OrderByDescending(d => d.Category).ToList(),
+					"categoryAsc" => drinks.OrderBy(d => d.Category).ToList(),
+					"typeDesc" => drinks.OrderByDescending(d => d.Type).ToList(),
+					"typeAsc" => drinks.OrderBy(d => d.Type).ToList(),
+					_ => drinks // No sorting or invalid sorting parameter
+				};
+			}
+
+			// Apply filtering
+			if (!string.IsNullOrEmpty(filter))
+			{
+				drinks = filter.ToLower() switch
+				{
+					"category" => drinks.Where(d => !string.IsNullOrEmpty(d.Category)).ToList(),
+					"type" => drinks.Where(d => !string.IsNullOrEmpty(d.Type)).ToList(),
+					_ => drinks // No filtering or invalid filtering parameter
+				};
+
+				if (!string.IsNullOrEmpty(filterCategory))
+				{
+					drinks = drinks.Where(d => d.Category.Equals(filterCategory, StringComparison.OrdinalIgnoreCase)).ToList();
+				}
+
+				if (!string.IsNullOrEmpty(filterType))
+				{
+					drinks = drinks.Where(d => d.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase)).ToList();
+				}
 			}
 
 			List<DrinkDto> drinkDtos = new List<DrinkDto>();
