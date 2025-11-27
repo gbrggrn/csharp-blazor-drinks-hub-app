@@ -22,5 +22,7 @@ namespace DrinksHubAPI.Model
 		[MaxLength(50)]
 		public string Type { get; set; } = string.Empty;
 		public string ImageUrl { get; set; } = string.Empty;
+
+		public List<Review> Reviews { get; set; } = new();
 	}
 }

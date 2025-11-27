@@ -12,10 +12,12 @@ namespace DrinksHubAPI.Controllers
 	public class DrinksController : ControllerBase
 	{
 		private readonly IDrinksRepository _drinksRepository;
+		private readonly IUserRepository _userRepository;
 
-		public DrinksController(IDrinksRepository drinksRepository)
+		public DrinksController(IDrinksRepository drinksRepository, IUserRepository userRepository)
 		{
 			_drinksRepository = drinksRepository;
+			_userRepository = userRepository;
 		}
 
 		[HttpPost]
@@ -91,7 +93,15 @@ namespace DrinksHubAPI.Controllers
 				Description = drinks.Description,
 				Category = drinks.Category,
 				Type = drinks.Type,
-				ImageUrl = drinks.ImageUrl
+				ImageUrl = drinks.ImageUrl,
+				Reviews = drinks.Reviews.Select(r => new ReviewDto
+				{
+					Title = r.Title,
+					Content = r.Content,
+					Rating = r.Rating,
+					Username = r.User != null ? r.User.Username : "",
+					Id = r.Id
+				}).ToList()
 			}).ToListAsync();
 
 			return Ok(drinkDtos);
