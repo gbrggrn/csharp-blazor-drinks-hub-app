@@ -13,15 +13,17 @@ namespace DrinksHubAPI.Controllers
 	{
 		private readonly IDrinksRepository _drinksRepository;
 		private readonly IUserRepository _userRepository;
+		private readonly IReviewsRepository _reviewsRepository;
 
-		public DrinksController(IDrinksRepository drinksRepository, IUserRepository userRepository)
+		public DrinksController(IDrinksRepository drinksRepository, IUserRepository userRepository, IReviewsRepository reviewsRepository)
 		{
 			_drinksRepository = drinksRepository;
 			_userRepository = userRepository;
+			_reviewsRepository = reviewsRepository;
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateDrink([FromBody] DrinkDto drinkDtoIn)
+		public async Task<IActionResult> CreateDrink([FromBody] CreateDrinkDTO drinkDtoIn)
 		{
 			if (drinkDtoIn == null)
 			{
@@ -38,39 +40,44 @@ namespace DrinksHubAPI.Controllers
 
 			await _drinksRepository.AddAsync(drink);
 
-			return Ok(new { Message = $"{drinkDtoIn.Name} successfully added." });
+			return Ok(new { Message = $"{drink.Name} successfully added." });
 		}
 
 		[HttpPost("{drinkId}/reviews")]
 		public async Task<IActionResult> AddReviewToDrink (
 			int drinkId, 
-			[FromQuery] int userId, 
-			[FromBody] ReviewDto reviewDtoIn)
+			[FromBody] CreateReviewDTO reviewDtoIn)
 		{
+			var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; //Add auth
+
+			if (!int.TryParse(userIdString, out int userId))
+			{
+				return Unauthorized(new { Message = "User is not authenticated" });
+			}
+
 			if (reviewDtoIn == null)
 			{
 				return BadRequest(new { Message = "The review DTO was null" });
 			}
 
-			var drink = await _drinksRepository.GetByIdAsync(drinkId) as Drink;
-
+			var drink = await _drinksRepository.GetByIdAsync(drinkId);
 			if (drink == null)
 			{
 				return NotFound(new { Message = "Drink not found" });
 			}
 
-			drink.Reviews.Add(new Review
+			var review = new Review
 			{
 				Title = reviewDtoIn.Title,
 				Content = reviewDtoIn.Content,
 				Rating = reviewDtoIn.Rating,
 				DrinkId = drinkId,
 				UserId = userId
-			});
+			};
 
-			await _drinksRepository.UpdateAsync(drink.Id, drink);
+			await _reviewsRepository.AddAsync(review);
 
-			return Ok(new { Message = $"Review: {reviewDtoIn.Title} - added to drink: {drink.Name}" });
+			return Ok(new { Message = $"Review: {review.Title} - added to drink: {drink.Name}" });
 		}
 
 		[HttpGet]
@@ -119,21 +126,13 @@ namespace DrinksHubAPI.Controllers
 				drinks = drinks.Where(d => d.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase));
 			}
 
-			var drinkDtos = await drinks.Select(drinks => new DrinkDto
+			var drinkDtos = await drinks.Select(drinks => new ResponseDrinkDTO
 			{
 				Name = drinks.Name,
 				Description = drinks.Description,
 				Category = drinks.Category,
 				Type = drinks.Type,
-				ImageUrl = drinks.ImageUrl,
-				Reviews = drinks.Reviews.Select(r => new ReviewDto
-				{
-					Title = r.Title,
-					Content = r.Content,
-					Rating = r.Rating,
-					Username = r.User != null ? r.User.Username : "",
-					Id = r.Id
-				}).ToList()
+				ImageUrl = drinks.ImageUrl
 			}).ToListAsync();
 
 			return Ok(drinkDtos);
@@ -154,20 +153,29 @@ namespace DrinksHubAPI.Controllers
 				return NotFound(new { Message = $"Drink with ID: {id} not found." });
 			}
 
-			var drinkDto = new DrinkDto
+			var drinkDto = new ResponseDrinkDTO
 			{
 				Name = drink.Name,
 				Description = drink.Description,
 				Category = drink.Category,
 				Type = drink.Type,
-				ImageUrl = drink.ImageUrl
+				ImageUrl = drink.ImageUrl,
+				Reviews = drink.Reviews.Select(r => new ResponseReviewDTO
+				{
+					Title = r.Title,
+					Content = r.Content,
+					Rating = r.Rating,
+					Username = r.User != null ? r.User.Username : "Unknown"
+				}).ToList()
 			};
 
 			return Ok(drinkDto);
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateDrink(int id, [FromBody] DrinkDto drinkDtoIn)
+		public async Task<IActionResult> UpdateDrink(
+			int id, 
+			[FromBody] UpdateDrinkDTO drinkDtoIn)
 		{
 			if (drinkDtoIn == null)
 			{
@@ -193,7 +201,7 @@ namespace DrinksHubAPI.Controllers
 				return NotFound(new { Message = kfe.Message });
 			}
 
-			return Ok(new { Message = $"Drink {drinkDtoIn.Name} successfully updated" });
+			return Ok(new { Message = $"Drink {drink.Name} successfully updated" });
 		}
 
 		[HttpDelete("{id}")]

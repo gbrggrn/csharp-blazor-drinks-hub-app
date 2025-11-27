@@ -1,6 +1,6 @@
 ﻿namespace DrinksHubAPI.DTOs
 {
-	public class ReviewDto
+	public class RequestReviewDTO
 	{
 		public int Id { get; set; }
 		public string Title { get; set; } = "";

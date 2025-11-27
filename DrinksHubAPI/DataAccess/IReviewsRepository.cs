@@ -5,6 +5,6 @@ namespace DrinksHubAPI.DataAccess
 	public interface IReviewsRepository
 	{
 		Task AddAsync(Review review);
-		Task DeleteAsync(Review review);
+		Task DeleteAsync(int id);
 	}
 }

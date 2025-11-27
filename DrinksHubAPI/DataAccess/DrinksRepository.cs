@@ -38,7 +38,10 @@ namespace DrinksHubAPI.DataAccess
 
 		public async Task<Drink?> GetByIdAsync(int id)
 		{
-			Drink? drink = await _context.Drinks.Where(d => d.Id == id).FirstOrDefaultAsync();
+			// Iclude Reviews and associated Users
+			Drink? drink = await _context.Drinks.Include(d => d.Reviews)
+				.ThenInclude(r => r.User)
+				.FirstOrDefaultAsync(d => d.Id == id);
 
 			if (drink == null)
 			{

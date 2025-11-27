@@ -1,17 +1,28 @@
-﻿using DrinksHubAPI.Model;
+﻿using DrinksHubAPI.Data;
+using DrinksHubAPI.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace DrinksHubAPI.DataAccess
 {
 	public class ReviewsRepository : IReviewsRepository
 	{
-		public Task AddAsync(Review review)
+		private readonly DrinksHubContext _context;
+
+		public ReviewsRepository(DrinksHubContext context)
 		{
-			throw new NotImplementedException();
+			_context = context;
 		}
 
-		public Task DeleteAsync(Review review)
+		public async Task AddAsync(Review review)
 		{
-			throw new NotImplementedException();
+			await _context.AddAsync(review);
+			await _context.SaveChangesAsync();
+		}
+
+		public async Task DeleteAsync(int id)
+		{
+			_context.Reviews.Where(r => r.Id == id).ExecuteDelete();
+			await _context.SaveChangesAsync();
 		}
 	}
 }
