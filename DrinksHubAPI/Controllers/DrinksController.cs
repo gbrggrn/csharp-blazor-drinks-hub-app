@@ -41,6 +41,38 @@ namespace DrinksHubAPI.Controllers
 			return Ok(new { Message = $"{drinkDtoIn.Name} successfully added." });
 		}
 
+		[HttpPost("{drinkId}/reviews")]
+		public async Task<IActionResult> AddReviewToDrink (
+			int drinkId, 
+			[FromQuery] int userId, 
+			[FromBody] ReviewDto reviewDtoIn)
+		{
+			if (reviewDtoIn == null)
+			{
+				return BadRequest(new { Message = "The review DTO was null" });
+			}
+
+			var drink = await _drinksRepository.GetByIdAsync(drinkId) as Drink;
+
+			if (drink == null)
+			{
+				return NotFound(new { Message = "Drink not found" });
+			}
+
+			drink.Reviews.Add(new Review
+			{
+				Title = reviewDtoIn.Title,
+				Content = reviewDtoIn.Content,
+				Rating = reviewDtoIn.Rating,
+				DrinkId = drinkId,
+				UserId = userId
+			});
+
+			await _drinksRepository.UpdateAsync(drink.Id, drink);
+
+			return Ok(new { Message = $"Review: {reviewDtoIn.Title} - added to drink: {drink.Name}" });
+		}
+
 		[HttpGet]
 		public async Task<IActionResult> GetAllDrinks(
 			[FromQuery] string? search,

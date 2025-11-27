@@ -1,9 +1,18 @@
-﻿using DrinksHubAPI.Model;
+﻿using DrinksHubAPI.Data;
+using DrinksHubAPI.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace DrinksHubAPI.DataAccess
 {
 	public class UserRepository : IUserRepository
 	{
+		private readonly DrinksHubContext _context;
+
+		public UserRepository(DrinksHubContext context)
+		{
+			_context = context;
+		}
+
 		public Task AddAsync(User userIn)
 		{
 			throw new NotImplementedException();
@@ -19,9 +28,9 @@ namespace DrinksHubAPI.DataAccess
 			throw new NotImplementedException();
 		}
 
-		public Task<User?> GetByIdAsync(int id)
+		public async Task<User?> GetByIdAsync(int id)
 		{
-			throw new NotImplementedException();
+			return await _context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
 		}
 
 		public Task UpdateAsync(int id, User userIn)
