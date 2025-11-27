@@ -31,9 +31,9 @@ namespace DrinksHubAPI.DataAccess
 			}
 		}
 
-		public async Task<List<Drink>> GetAllAsync()
+		public IQueryable<Drink> GetAllQuery()
 		{
-			return await _context.Drinks.ToListAsync();
+			return _context.Drinks.AsQueryable();
 		}
 
 		public async Task<Drink?> GetByIdAsync(int id)
