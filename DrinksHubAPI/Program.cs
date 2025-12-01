@@ -1,8 +1,11 @@
 
 using DrinksHubAPI.Data;
 using DrinksHubAPI.DataAccess;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Text;
 
 namespace DrinksHubAPI
 {
@@ -18,6 +21,28 @@ namespace DrinksHubAPI
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
+
+			//Add authentication
+			var jwtSettings = builder.Configuration.GetSection("Jwt");
+			var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
+			builder.Services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(options =>
+			{
+				options.TokenValidationParameters = new TokenValidationParameters
+				{
+					ValidateIssuer = true,
+					ValidateAudience = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = jwtSettings["Issuer"],
+					ValidAudience = jwtSettings["Audience"],
+					IssuerSigningKey = new SymmetricSecurityKey(key)
+				};
+			});
 
 			//Register repositories
 			builder.Services.AddScoped<IDrinksRepository, DrinksRepository>();
@@ -46,6 +71,7 @@ namespace DrinksHubAPI
 
 			app.UseHttpsRedirection();
 
+			app.UseAuthentication();
 			app.UseAuthorization();
 
 
