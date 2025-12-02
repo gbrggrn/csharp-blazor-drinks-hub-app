@@ -6,6 +6,7 @@ namespace DrinksHubAPI.DataAccess
 	{
 		IQueryable<User> GetAllQuery();
 		Task<User?> GetByIdAsync(int id);
+		Task<User?> GetByUsernameAsync(string username);
 		Task AddAsync(User userIn);
 		Task UpdateAsync(int id, User userIn);
 		Task DeleteAsync(int id);

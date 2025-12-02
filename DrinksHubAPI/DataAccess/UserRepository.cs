@@ -33,6 +33,11 @@ namespace DrinksHubAPI.DataAccess
 			return await _context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
 		}
 
+		public async Task<User?> GetByUsernameAsync(string username)
+		{
+			return await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
+		}
+
 		public Task UpdateAsync(int id, User userIn)
 		{
 			throw new NotImplementedException();

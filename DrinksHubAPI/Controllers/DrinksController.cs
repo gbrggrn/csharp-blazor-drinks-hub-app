@@ -1,8 +1,10 @@
 ﻿using DrinksHubAPI.DataAccess;
 using DrinksHubAPI.DTOs;
 using DrinksHubAPI.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace DrinksHubAPI.Controllers
@@ -22,6 +24,7 @@ namespace DrinksHubAPI.Controllers
 			_reviewsRepository = reviewsRepository;
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpPost]
 		public async Task<IActionResult> CreateDrink([FromBody] CreateDrinkDTO drinkDtoIn)
 		{
@@ -43,12 +46,13 @@ namespace DrinksHubAPI.Controllers
 			return Ok(new { Message = $"{drink.Name} successfully added." });
 		}
 
+		[Authorize]
 		[HttpPost("{drinkId}/reviews")]
 		public async Task<IActionResult> AddReviewToDrink (
 			int drinkId, 
 			[FromBody] CreateReviewDTO reviewDtoIn)
 		{
-			var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; //Add auth
+			var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
 			if (!int.TryParse(userIdString, out int userId))
 			{
@@ -80,6 +84,7 @@ namespace DrinksHubAPI.Controllers
 			return Ok(new { Message = $"Review: {review.Title} - added to drink: {drink.Name}" });
 		}
 
+		[Authorize]
 		[HttpGet]
 		public async Task<IActionResult> GetAllDrinks(
 			[FromQuery] string? search,
@@ -138,6 +143,7 @@ namespace DrinksHubAPI.Controllers
 			return Ok(drinkDtos);
 		}
 
+		[Authorize]
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetDrinkById(int id)
 		{
@@ -172,6 +178,7 @@ namespace DrinksHubAPI.Controllers
 			return Ok(drinkDto);
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpPut("{id}")]
 		public async Task<IActionResult> UpdateDrink(
 			int id, 
@@ -204,6 +211,7 @@ namespace DrinksHubAPI.Controllers
 			return Ok(new { Message = $"Drink {drink.Name} successfully updated" });
 		}
 
+		[Authorize(Roles = "Admin")]
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteDrink(int id)
 		{
