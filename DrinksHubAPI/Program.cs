@@ -49,6 +49,7 @@ namespace DrinksHubAPI
 			builder.Services.AddScoped<IDrinksRepository, DrinksRepository>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
 			builder.Services.AddScoped<IReviewsRepository, ReviewsRepository>();
+			builder.Services.AddScoped<IFavoritesRepository, FavoritesRepository>();
 
 			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 

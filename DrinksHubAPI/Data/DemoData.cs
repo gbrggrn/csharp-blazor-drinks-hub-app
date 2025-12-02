@@ -9,12 +9,20 @@ namespace DrinksHubAPI.Data
 	public class DemoData
 	{
 		private readonly IUserRepository _userRepository;
+
 		public DemoData(IUserRepository userRepository)
 		{
 			_userRepository = userRepository;
 		}
 
-		internal async Task InitializeAsync(IServiceProvider serviceProvider)
+		internal static async Task InitializeAsync(IServiceProvider serviceProvider)
+		{
+			var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
+			var demoData = new DemoData(userRepository);
+			demoData.SeedAdmin();
+		}
+
+		public async void SeedAdmin()
 		{
 			var hasher = new PasswordHasher<User>();
 

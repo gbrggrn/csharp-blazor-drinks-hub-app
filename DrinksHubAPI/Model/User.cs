@@ -21,7 +21,5 @@ namespace DrinksHubAPI.Model
 		[MaxLength(50)]
 		public string PasswordHash { get; set; } = string.Empty;
 		public string Role { get; set; } = "User";
-
-		public ICollection<UserFavorite> Favorites { get; set; } = new List<UserFavorite>();
 	}
 }
