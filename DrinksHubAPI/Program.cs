@@ -1,6 +1,7 @@
 
 using DrinksHubAPI.Data;
 using DrinksHubAPI.DataAccess;
+using DrinksHubAPI.DataAccess.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

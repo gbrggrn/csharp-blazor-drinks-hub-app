@@ -2,6 +2,7 @@
 using DrinksHubAPI.DTOs;
 using DrinksHubAPI.Helpers;
 using DrinksHubAPI.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,7 @@ namespace DrinksHubAPI.Controllers
 			_config = config;
 		}
 
+		[AllowAnonymous]
 		[HttpPost("login")]
 		public async Task<IActionResult> Login(LoginRequestDTO dto)
 		{

@@ -2,7 +2,7 @@
 using DrinksHubAPI.Model;
 using Microsoft.EntityFrameworkCore;
 
-namespace DrinksHubAPI.DataAccess
+namespace DrinksHubAPI.DataAccess.Repositories
 {
 	public class ReviewsRepository : IReviewsRepository
 	{
