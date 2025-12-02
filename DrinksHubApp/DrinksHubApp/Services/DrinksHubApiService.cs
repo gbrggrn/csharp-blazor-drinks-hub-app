@@ -15,7 +15,7 @@ namespace DrinksHubApp.Services
 			_http.BaseAddress = new Uri("https://localhost:5119");
         }
 
-		public async Task<List<DrinkDto>> GetAllDrinksAsync(List<DrinkQueryActions> actions, 
+		public async Task<List<ResponseDrinkDTO>> GetAllDrinksAsync(List<DrinkQueryActions> actions, 
 			DrinkSortOption? sortOption, 
 			DrinkFilterOption? filterOption,
 			DrinkFilterCategory? filterCategory,
@@ -25,7 +25,7 @@ namespace DrinksHubApp.Services
 			// If no actions, return all drinks or an empty list early
 			if (actions == null || actions.Count == 0)
 			{
-				return await _http.GetFromJsonAsync<List<DrinkDto>>("api/Drinks") ?? new List<DrinkDto>();
+				return await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>("api/Drinks") ?? new List<ResponseDrinkDTO>();
 			}
 
 			StringBuilder request = new();
@@ -58,19 +58,19 @@ namespace DrinksHubApp.Services
 
 			String requestString = request.ToString();
 
-			var drinks = await _http.GetFromJsonAsync<List<DrinkDto>>($"api/Drinks{requestString}");
+			var drinks = await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>($"api/Drinks{requestString}");
 
 			//If no drinks found, return empty list
-			return drinks ?? new List<DrinkDto>();
+			return drinks ?? new List<ResponseDrinkDTO>();
 		}
 
-		public async Task<DrinkDto?> GetDrinkByIdAsync(int idIn)
+		public async Task<ResponseDrinkDTO?> GetDrinkByIdAsync(int idIn)
 		{
-			var drink = await _http.GetFromJsonAsync<DrinkDto>($"api/Drinks/{idIn}");
+			var drink = await _http.GetFromJsonAsync<ResponseDrinkDTO>($"api/Drinks/{idIn}");
 			return drink;
 		}
 
-		public async Task<bool> CreateDrinkAsync(DrinkDto drinkDtoIn)
+		public async Task<bool> CreateDrinkAsync(CreateDrinkDTO drinkDtoIn)
 		{
 			var response = await _http.PostAsJsonAsync("api/Drinks", drinkDtoIn);
 
@@ -82,7 +82,7 @@ namespace DrinksHubApp.Services
 			return true;
 		}
 
-		public async Task<bool> UpdateDrinkAsync(int idIn, DrinkDto drinkDtoIn)
+		public async Task<bool> UpdateDrinkAsync(int idIn, UpdateDrinkDTO drinkDtoIn)
 		{
 			var response = await _http.PutAsJsonAsync($"api/Drinks/{idIn}", drinkDtoIn);
 
@@ -97,6 +97,37 @@ namespace DrinksHubApp.Services
 		public async Task<bool> DeleteDrinksAsync(int idIn)
 		{
 			var response = await _http.DeleteAsync($"api/Drinks/{idIn}");
+
+			if (!response.IsSuccessStatusCode)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		public async Task<List<ResponseDrinkDTO>> GetFavoritesAsync(int userId)
+		{
+			var favorites = await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>($"api/Favorites/{userId}");'
+				
+			return favorites ?? new List<ResponseDrinkDTO>();
+		}
+
+		public async Task<bool> AddToFavoritesAsync(int drinkId, int userId)
+		{
+			var response = await _http.PostAsync($"api/Favorites/{drinkId}?userId={userId}", null);
+
+			if (!response.IsSuccessStatusCode)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		public async Task<bool> RemoveFromFavoritesAsync(int drinkId, int userId)
+		{
+			var response = await _http.DeleteAsync($"api/Favorites/{drinkId}?userId={userId}");
 
 			if (!response.IsSuccessStatusCode)
 			{

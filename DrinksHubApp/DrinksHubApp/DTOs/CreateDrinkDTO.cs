@@ -1,11 +1,13 @@
 ﻿namespace DrinksHubApp.DTOs
 {
-	public class DrinkDto
+	public class CreateDrinkDTO
 	{
-        public string Name { get; set; } = "";
+        public int Id { get; set; }
+		public string Name { get; set; } = "";
         public string Description { get; set; } = "";
         public string Category { get; set; } = "";
         public string Type { get; set; } = "";
         public string ImageUrl { get; set; } = "";
-    }
+        public List<ResponseReviewDTO> Reviews { get; set; } = new();
+	}
 }
