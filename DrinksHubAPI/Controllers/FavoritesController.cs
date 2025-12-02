@@ -15,10 +15,30 @@ namespace DrinksHubAPI.Controllers
 		}
 
 		[Authorize]
-		[HttpGet]
-		public Task<IActionResult> GetFavorites()
+		[HttpGet("{userId}")]
+		public async Task<IActionResult> GetFavorites(int userId)
 		{
-			return Task.FromResult<IActionResult>(Ok("GetFavorites endpoint reached."));
+			var drinkDTOs = await _favoritesRepository.GetFavoritesOfUser(userId);
+
+			return Ok(drinkDTOs);
+		}
+
+		[Authorize]
+		[HttpPost("{drinkId}")]
+		public async Task<IActionResult> AddToFavorites(int drinkId, [FromQuery] int userId)
+		{
+			await _favoritesRepository.AddFavoriteToUserAsync(drinkId, userId);
+
+			return Ok(new { Message = "Drink added to favorites." });
+		}
+
+		[Authorize]
+		[HttpDelete("{drinkId}")]
+		public async Task<IActionResult> RemoveFromFavorites(int drinkId, [FromQuery] int userId)
+		{
+			await _favoritesRepository.RemoveFavoriteAsync(drinkId, userId);
+
+			return Ok(new { Message = "Drink removed from favorites." });
 		}
 	}
 }
