@@ -1,5 +1,6 @@
 using DrinksHubApp.Client.Pages;
 using DrinksHubApp.Components;
+using DrinksHubApp.Services;
 
 namespace DrinksHubApp
 {
@@ -12,6 +13,21 @@ namespace DrinksHubApp
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveWebAssemblyComponents();
+
+            // Add scoped services
+            builder.Services.AddScoped<TokenStore>();
+            builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<DrinksHubApiService>();
+
+            // Add Http client to services that use it
+            builder.Services.AddHttpClient<AuthService>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:5119/");
+            });
+            builder.Services.AddHttpClient<DrinksHubApiService>(client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:5119/");
+            });
 
             var app = builder.Build();
 

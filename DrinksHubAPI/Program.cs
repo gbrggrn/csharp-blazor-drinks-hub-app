@@ -53,7 +53,8 @@ namespace DrinksHubAPI
 
 			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-			builder.Services.AddDbContext<DrinksHubContext>(options => options.UseSqlServer(connectionString));
+			builder.Services.AddDbContext<DrinksHubContext>(options => 
+				options.UseSqlServer(connectionString));
 
 			var app = builder.Build();
 

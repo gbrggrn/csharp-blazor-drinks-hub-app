@@ -1,19 +1,30 @@
 ﻿
 using DrinksHubApp.DTOs;
-using Microsoft.AspNetCore.WebUtilities;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace DrinksHubApp.Services
 {
 	public class DrinksHubApiService
 	{
-		HttpClient _http;
+		private readonly HttpClient _http;
+		private readonly TokenStore _tokenStore;
 
-		public DrinksHubApiService(HttpClient http)
+		public DrinksHubApiService(HttpClient http, TokenStore tokenStore)
 		{
 			_http = http;
 			_http.BaseAddress = new Uri("https://localhost:5119");
-        }
+			_tokenStore = tokenStore;
+		}
+
+		private void AttachTokenToRequest()
+		{
+			if (!string.IsNullOrEmpty(_tokenStore.Token))
+			{
+				_http.DefaultRequestHeaders.Authorization =
+					new AuthenticationHeaderValue("Bearer", _tokenStore.Token);
+			}
+		}
 
 		public async Task<List<ResponseDrinkDTO>> GetAllDrinksAsync(List<DrinkQueryActions> actions, 
 			DrinkSortOption? sortOption, 
