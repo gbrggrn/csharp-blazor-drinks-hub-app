@@ -22,11 +22,11 @@ namespace DrinksHubApp
             // Add Http client to services that use it
             builder.Services.AddHttpClient<AuthService>(client =>
             {
-                client.BaseAddress = new Uri("https://localhost:5119/");
+                client.BaseAddress = new Uri("https://localhost:7080/");
             });
             builder.Services.AddHttpClient<DrinksHubApiService>(client =>
             {
-                client.BaseAddress = new Uri("https://localhost:5119/");
+                client.BaseAddress = new Uri("https://localhost:7080/");
             });
 
             var app = builder.Build();

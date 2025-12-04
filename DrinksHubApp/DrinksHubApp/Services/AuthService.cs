@@ -1,7 +1,6 @@
 ﻿using DrinksHubApp.DTOs;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Mvc;
-using static System.Net.WebRequestMethods;
 
 namespace DrinksHubApp.Services
 {
@@ -13,7 +12,6 @@ namespace DrinksHubApp.Services
 		public AuthService(HttpClient http, TokenStore tokenStore)
 		{
 			_http = http;
-			_http.BaseAddress = new Uri("https://localhost:5119");
 			_tokenStore = tokenStore;
 		}
 
