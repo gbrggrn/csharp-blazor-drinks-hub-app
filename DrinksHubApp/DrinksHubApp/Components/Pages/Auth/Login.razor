@@ -1,0 +1,51 @@
+﻿@using DrinksHubApp.DTOs
+@using DrinksHubApp.Services
+@page "/login"
+<h3>Login</h3>
+
+@code {
+    [Inject] private AuthService AuthService { get; set; }
+    private LoginRequestDTO loginModel = new();
+    private string errorMessage = string.Empty;
+
+    private async Task HandleLogin()
+    {
+		bool success = await AuthService.LoginAsync(loginModel);
+
+		if (!success)
+		{
+			errorMessage = "Login failed. Username or password incorrect";
+		}
+		else
+		{
+			
+		}
+	}
+}
+
+<div>
+	<div class="mb-2">
+		<EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+			<DataAnnotationsValidator/>
+			<ValidationSummary/>
+
+			<div class="mb-2">
+				<label>Username: </label>
+				<InputText @bind-value="loginModel.Username"/>
+			</div>
+
+			<div class="mb-2">
+				<label>Password: </label>
+				<InputText @bind-Value="loginModel.Password" type="password"/>
+			</div>
+
+			<button type="submit">Login</button>
+		</EditForm>
+
+		@if (!string.IsNullOrEmpty(errorMessage))
+		{
+			<p class="text-danger">@errorMessage</p>
+		}
+	</div>
+	
+</div>

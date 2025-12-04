@@ -13,14 +13,15 @@ namespace DrinksHubAPI.DataAccess.Repositories
 			_context = context;
 		}
 
-		public Task AddAsync(User userIn)
+		public async Task AddAsync(User userIn)
 		{
-			throw new NotImplementedException();
+			await _context.Users.AddAsync(userIn);
 		}
 
-		public Task DeleteAsync(int id)
+		public async Task DeleteAsync(int id)
 		{
-			throw new NotImplementedException();
+			await _context.Users.Where(u => u.Id == id).ExecuteDeleteAsync();
+			await _context.SaveChangesAsync();
 		}
 
 		public IQueryable<User> GetAllQuery()

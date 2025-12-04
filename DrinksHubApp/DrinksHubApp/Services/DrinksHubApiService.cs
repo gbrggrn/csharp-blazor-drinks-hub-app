@@ -119,7 +119,7 @@ namespace DrinksHubApp.Services
 
 		public async Task<List<ResponseDrinkDTO>> GetFavoritesAsync(int userId)
 		{
-			var favorites = await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>($"api/Favorites/{userId}");'
+			var favorites = await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>($"api/Favorites/{userId}");
 				
 			return favorites ?? new List<ResponseDrinkDTO>();
 		}

@@ -49,5 +49,54 @@ namespace DrinksHubAPI.Controllers
 
 			return Ok(new { token });
 		}
+
+		[Authorize(Roles = "Admin")]
+		[HttpDelete("/api/users/{id}")]
+		public async Task<IActionResult> DeleteUser(int id)
+		{
+			if (id < 0)
+			{
+				return NotFound();
+			}
+
+			await _userRepository.DeleteAsync(id);
+
+			return Ok();
+		}
+
+		[Authorize(Roles = "Admin")]
+		[HttpPost("addUser")]
+		public async Task<IActionResult> AddUser(CreateUserDTO createUserDTO)
+		{
+			if (createUserDTO == null)
+			{
+				return BadRequest("No user data provided.");
+			}
+
+			if (await _userRepository.GetByUsernameAsync(createUserDTO.Username) != null)
+			{
+				return BadRequest("Username already exists.");
+			}
+
+			var newUser = new User
+			{
+				Name = createUserDTO.Name,
+				Email = createUserDTO.Email,
+				Username = createUserDTO.Username,
+				Role = createUserDTO.Role
+			};
+
+			var hasher = new PasswordHasher<User>();
+
+			newUser.PasswordHash = hasher.HashPassword(newUser, createUserDTO.Password);
+
+			await _userRepository.AddAsync(newUser);
+
+			return Ok(new { Message = $"User: {newUser.Username} created."});
+		}
+
+		//Add update user
+		//Add remove user
+		//Add retrieve all users
 	}
 }
