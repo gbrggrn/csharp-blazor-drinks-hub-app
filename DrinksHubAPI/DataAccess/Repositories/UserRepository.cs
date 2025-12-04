@@ -1,6 +1,7 @@
 ﻿using DrinksHubAPI.Data;
 using DrinksHubAPI.Model;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace DrinksHubAPI.DataAccess.Repositories
 {
@@ -26,7 +27,7 @@ namespace DrinksHubAPI.DataAccess.Repositories
 
 		public IQueryable<User> GetAllQuery()
 		{
-			throw new NotImplementedException();
+			return _context.Users.AsQueryable();
 		}
 
 		public async Task<User?> GetByIdAsync(int id)
@@ -39,9 +40,24 @@ namespace DrinksHubAPI.DataAccess.Repositories
 			return await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
 		}
 
-		public Task UpdateAsync(int id, User userIn)
+		public async Task UpdateAsync(int id, User userIn)
 		{
-			throw new NotImplementedException();
+			User? userToUpdate = await _context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+
+			if (userToUpdate != null)
+			{
+				throw new KeyNotFoundException($"Could not find user to update.");
+			}
+
+			userToUpdate.Name = userIn.Name;
+			userToUpdate.Username = userIn.Username;
+			userToUpdate.Role = userIn.Role;
+			userToUpdate.Email = userIn.Email;
+			userToUpdate.PasswordHash = userIn.PasswordHash;
+
+			_context.Users.Update(userToUpdate);
+
+			await _context.SaveChangesAsync();
 		}
 	}
 }

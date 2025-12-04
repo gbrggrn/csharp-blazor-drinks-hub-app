@@ -4,8 +4,8 @@ using DrinksHubAPI.Helpers;
 using DrinksHubAPI.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DrinksHubAPI.Controllers
 {
@@ -95,8 +95,44 @@ namespace DrinksHubAPI.Controllers
 			return Ok(new { Message = $"User: {newUser.Username} created."});
 		}
 
-		//Add update user
-		//Add remove user
-		//Add retrieve all users
+		[Authorize(Roles = "Admin")]
+		[HttpPut("updateUser")]
+		public async Task<IActionResult> UpdateUser(int id, [FromQuery] UpdateUserDTO updateUserDTO)
+		{
+			if (updateUserDTO == null)
+			{
+				return BadRequest("No user data provided.");
+			}
+
+			if (id <= 0)
+			{
+				return BadRequest("No user with provided ID.");
+			}
+
+			var updatedUser = new User
+			{
+				Name = updateUserDTO.Name,
+				Email = updateUserDTO.Email,
+				Username = updateUserDTO.Username,
+				Role = updateUserDTO.Role
+			};
+
+			var hasher = new PasswordHasher<User>();
+
+			updatedUser.PasswordHash = hasher.HashPassword(updatedUser, updateUserDTO.Password);
+
+			await _userRepository.UpdateAsync(id, updatedUser);
+
+			return Ok(new { Message = $"User: {updatedUser.Username} updated."});
+		}
+
+		[Authorize(Roles = "Admin")]
+		[HttpGet]
+		public async Task<IActionResult> GetUsers()
+		{
+			var allUsers = await _userRepository.GetAllQuery().ToListAsync();
+
+			return Ok(allUsers);
+		}
 	}
 }
