@@ -18,7 +18,6 @@ namespace DrinksHubAPI.Model
 		public string Username { get; set; } = string.Empty;
 
 		[Required]
-		[MaxLength(50)]
 		public string PasswordHash { get; set; } = string.Empty;
 		public string Role { get; set; } = "User";
 	}

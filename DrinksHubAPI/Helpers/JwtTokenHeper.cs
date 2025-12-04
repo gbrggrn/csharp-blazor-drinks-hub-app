@@ -11,7 +11,19 @@ namespace DrinksHubAPI.Helpers
 		public static string JwtTokenProvider(User user, IConfiguration config)
 		{
 			var jwtSettings = config.GetSection("Jwt");
-			var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+			var keyString = jwtSettings["Key"];
+			if (string.IsNullOrWhiteSpace(keyString))
+			{
+				throw new InvalidOperationException("No JWT config for KEY.");
+			}
+
+			var key = Encoding.UTF8.GetBytes(keyString);
+
+			var durationSetting = jwtSettings["DurationInMinutes"] ?? jwtSettings["ExpiresMinutes"];
+			if (!int.TryParse(durationSetting, out var durationMinutes))
+			{
+				durationMinutes = 60; //Fallback value
+			}
 
 			var claims = new List<Claim>
 			{
@@ -28,7 +40,7 @@ namespace DrinksHubAPI.Helpers
 				issuer: jwtSettings["Issuer"],
 				audience: jwtSettings["Audience"],
 				claims: claims,
-				expires: DateTime.Now.AddMinutes(int.Parse(jwtSettings["DurationInMinutes"]!)),
+				expires: DateTime.UtcNow.AddMinutes(durationMinutes),
 				signingCredentials: creds);
 
 			return new JwtSecurityTokenHandler().WriteToken(token);

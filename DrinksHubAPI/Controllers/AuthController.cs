@@ -2,10 +2,12 @@
 using DrinksHubAPI.DTOs;
 using DrinksHubAPI.Helpers;
 using DrinksHubAPI.Model;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens.Experimental;
 
 namespace DrinksHubAPI.Controllers
 {
@@ -26,6 +28,11 @@ namespace DrinksHubAPI.Controllers
 		[HttpPost("login")]
 		public async Task<IActionResult> Login(LoginRequestDTO dto)
 		{
+			if (dto == null)
+			{
+				return BadRequest("No login data provided.");
+			}
+
 			var user = await _userRepository.GetByUsernameAsync(dto.Username);
 
 			if (user == null)
@@ -42,12 +49,20 @@ namespace DrinksHubAPI.Controllers
 
 			if (result == PasswordVerificationResult.Failed)
 			{
-				return Unauthorized(new { Message = "Invalid username or password." });
+				return Unauthorized(new { Message = "Invalid either username or password." });
 			}
 
-			var token = JwtTokenHeper.JwtTokenProvider(user, _config);
+			var jwt = JwtTokenHeper.JwtTokenProvider(user, _config);
 
-			return Ok(new { token });
+			var response = new ResponseToken
+			{
+				AccessToken = jwt,
+				ExpiresIn = 3600,
+				RefreshToken = Guid.NewGuid().ToString()
+			};
+
+			Console.WriteLine($"{response} returned");
+			return Ok(response);
 		}
 
 		[Authorize(Roles = "Admin")]

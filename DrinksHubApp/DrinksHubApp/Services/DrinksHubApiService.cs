@@ -13,7 +13,6 @@ namespace DrinksHubApp.Services
 		public DrinksHubApiService(HttpClient http, TokenStore tokenStore)
 		{
 			_http = http;
-			_http.BaseAddress = new Uri("https://localhost:5119");
 			_tokenStore = tokenStore;
 		}
 

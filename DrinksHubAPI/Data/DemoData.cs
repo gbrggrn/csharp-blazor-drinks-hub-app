@@ -19,22 +19,36 @@ namespace DrinksHubAPI.Data
 		{
 			var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
 			var demoData = new DemoData(userRepository);
-			demoData.SeedAdmin();
+			await demoData.SeedAdmin();
+			await demoData.SeedUser();
 		}
 
-		public async void SeedAdmin()
+		public async Task SeedAdmin()
 		{
-			var hasher = new PasswordHasher<User>();
-
 			var seedAdmin = new User
 			{
 				Username = "seedAdmin",
 				Role = "Admin"
 			};
 
-			seedAdmin.PasswordHash = hasher.HashPassword(seedAdmin, "Admin123!");
+			var hasher = new PasswordHasher<User>();
+			seedAdmin.PasswordHash = hasher.HashPassword(seedAdmin, "Admin123");
 
 			await _userRepository.AddAsync(seedAdmin);
+		}
+
+		public async Task SeedUser()
+		{
+			var seedUser = new User
+			{
+				Username = "seedUser",
+				Role = "User"
+			};
+
+			var hasher = new PasswordHasher<User>();
+			seedUser.PasswordHash = hasher.HashPassword(seedUser, "User123");
+
+			await _userRepository.AddAsync(seedUser);
 		}
 	}
 }

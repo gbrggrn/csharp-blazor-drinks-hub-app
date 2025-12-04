@@ -16,7 +16,6 @@ namespace DrinksHubApp
 
             // Add scoped services
             builder.Services.AddScoped<TokenStore>();
-            builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped<DrinksHubApiService>();
 
             // Add Http client to services that use it

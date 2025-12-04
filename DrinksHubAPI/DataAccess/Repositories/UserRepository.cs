@@ -17,6 +17,7 @@ namespace DrinksHubAPI.DataAccess.Repositories
 		public async Task AddAsync(User userIn)
 		{
 			await _context.Users.AddAsync(userIn);
+			await _context.SaveChangesAsync();
 		}
 
 		public async Task DeleteAsync(int id)
@@ -44,7 +45,7 @@ namespace DrinksHubAPI.DataAccess.Repositories
 		{
 			User? userToUpdate = await _context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
 
-			if (userToUpdate != null)
+			if (userToUpdate == null)
 			{
 				throw new KeyNotFoundException($"Could not find user to update.");
 			}

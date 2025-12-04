@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using DrinksHubApp.Services
+@inherits LayoutComponentBase
+@inject TokenStore TokenStore
 
 <div class="page">
     <div class="sidebar">
@@ -7,6 +9,15 @@
 
     <main>
         <div class="top-row px-4">
+            @if (!string.IsNullOrEmpty(TokenStore.Token))
+            {
+                <p>You are logged in</p>
+            }
+            else
+            {
+                <p>You are not logged in</p>
+            }
+
             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
         </div>
 

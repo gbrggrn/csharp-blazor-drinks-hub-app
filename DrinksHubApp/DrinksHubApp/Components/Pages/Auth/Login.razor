@@ -1,15 +1,20 @@
 ﻿@using DrinksHubApp.DTOs
 @using DrinksHubApp.Services
+@inject NavigationManager NavManager
+@inject AuthService AuthService
+
 @page "/login"
 <h3>Login</h3>
 
 @code {
-    [Inject] private AuthService AuthService { get; set; }
-    private LoginRequestDTO loginModel = new();
-    private string errorMessage = string.Empty;
+	private LoginRequestDTO loginModel = new();
+	private string errorMessage = string.Empty;
 
-    private async Task HandleLogin()
-    {
+	private async Task HandleLogin()
+	{
+		loginModel.Username = loginModel.Username?.Trim() ?? string.Empty;
+		loginModel.Password = loginModel.Password?.Trim() ?? string.Empty;
+
 		bool success = await AuthService.LoginAsync(loginModel);
 
 		if (!success)
@@ -18,7 +23,7 @@
 		}
 		else
 		{
-			
+			NavManager.NavigateTo("/");
 		}
 	}
 }
@@ -30,13 +35,13 @@
 			<ValidationSummary/>
 
 			<div class="mb-2">
-				<label>Username: </label>
-				<InputText @bind-value="loginModel.Username"/>
+				<label for="username">Username: </label>
+				<InputText id="username" name="username" @bind-Value="loginModel.Username"/>
 			</div>
 
 			<div class="mb-2">
-				<label>Password: </label>
-				<InputText @bind-Value="loginModel.Password" type="password"/>
+				<label for="password">Password: </label>
+				<InputText id="password" name="password" @bind-Value="loginModel.Password" type="password"/>
 			</div>
 
 			<button type="submit">Login</button>
@@ -47,5 +52,4 @@
 			<p class="text-danger">@errorMessage</p>
 		}
 	</div>
-	
 </div>
