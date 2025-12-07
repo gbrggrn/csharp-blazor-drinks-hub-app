@@ -4,7 +4,8 @@
 	{
 		Search,
 		Sort,
-		Filter
+		Filter,
+		All
 	}
 
 	public enum DrinkSortOption

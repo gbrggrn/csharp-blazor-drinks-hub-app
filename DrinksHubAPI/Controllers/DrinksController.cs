@@ -83,7 +83,7 @@ namespace DrinksHubAPI.Controllers
 			return Ok(new { Message = $"Review: {review.Title} - added to drink: {drink.Name}" });
 		}
 
-		[Authorize]
+		[AllowAnonymous]
 		[HttpGet]
 		public async Task<IActionResult> GetAllDrinks(
 			[FromQuery] string? search,

@@ -25,17 +25,12 @@ namespace DrinksHub.Services
 		}
 
 		public async Task<List<ResponseDrinkDTO>> GetAllDrinksAsync(List<DrinkQueryActions> actions, 
-			DrinkSortOption? sortOption, 
-			DrinkFilterOption? filterOption,
-			DrinkFilterCategory? filterCategory,
-			DrinkFilterType? filterType,
-			String? searchParameter)
+			DrinkSortOption? sortOption = null, 
+			DrinkFilterOption? filterOption = null,
+			DrinkFilterCategory? filterCategory = null,
+			DrinkFilterType? filterType = null,
+			String? searchParameter = null)
 		{
-			// If no actions, return all drinks or an empty list early
-			if (actions == null || actions.Count == 0)
-			{
-				return await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>("api/Drinks") ?? new List<ResponseDrinkDTO>();
-			}
 
 			StringBuilder request = new();
 
@@ -43,7 +38,12 @@ namespace DrinksHub.Services
 			{
 				request.Append(i == 0 ? "?" : "&");
 
-				if (actions[i] == DrinkQueryActions.Search && !string.IsNullOrEmpty(searchParameter))
+				if (actions[i] == DrinkQueryActions.All)
+				{
+					// Early call + return if fetching all
+					return await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>("api/Drinks") ?? new List<ResponseDrinkDTO>();
+				}
+				else if (actions[i] == DrinkQueryActions.Search && !string.IsNullOrEmpty(searchParameter))
 				{
 					request.Append($"{DrinkQueryMapping.MapActions(actions[i])}={Uri.EscapeDataString(searchParameter)}");
 				}

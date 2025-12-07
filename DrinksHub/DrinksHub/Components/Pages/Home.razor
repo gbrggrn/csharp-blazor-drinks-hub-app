@@ -1,4 +1,20 @@
 ﻿@page "/"
+@using DrinksHub.DTOs
+@using DrinksHub.Services
+@using DrinksHub.Components.Shared
+@inject DrinksHubApiService DrinksHubApiService;
+
+@code {
+	private List<ResponseDrinkDTO> drinks;
+
+	protected override async Task OnInitializedAsync()
+	{
+		List<DrinkQueryActions> actions = new();
+		actions.Add(DrinkQueryActions.All);
+
+		drinks = await DrinksHubApiService.GetAllDrinksAsync(actions);
+	}
+}
 
 <PageTitle>DrinksHub</PageTitle>
 
@@ -10,3 +26,17 @@ If you have an account: Review drinks and add favorites
 <br />
 If you have an admin account: Add new drinks and users
 <br />
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+	@if (drinks != null)
+	{
+		@foreach (var drink in drinks)
+		{
+			<DrinkCard DrinkDTO="drink" />	
+		}
+	}
+	else
+	{
+		<p>Loading drinks...</p>
+	}
+</div>
