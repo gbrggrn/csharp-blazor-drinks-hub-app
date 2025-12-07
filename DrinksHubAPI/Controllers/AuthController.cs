@@ -2,12 +2,10 @@
 using DrinksHubAPI.DTOs;
 using DrinksHubAPI.Helpers;
 using DrinksHubAPI.Model;
-using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens.Experimental;
 
 namespace DrinksHubAPI.Controllers
 {
@@ -28,6 +26,8 @@ namespace DrinksHubAPI.Controllers
 		[HttpPost("login")]
 		public async Task<IActionResult> Login(LoginRequestDTO dto)
 		{
+			Console.WriteLine($"Login attempt: Username='{dto?.Username}', Password='{dto?.Password}'");
+
 			if (dto == null)
 			{
 				return BadRequest("No login data provided.");
@@ -52,7 +52,7 @@ namespace DrinksHubAPI.Controllers
 				return Unauthorized(new { Message = "Invalid either username or password." });
 			}
 
-			var jwt = JwtTokenHeper.JwtTokenProvider(user, _config);
+			var jwt = JwtTokenHelper.JwtTokenProvider(user, _config);
 
 			var response = new ResponseToken
 			{

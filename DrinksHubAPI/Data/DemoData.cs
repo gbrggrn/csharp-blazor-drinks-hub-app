@@ -1,8 +1,6 @@
-﻿
-using DrinksHubAPI.DataAccess;
+﻿using DrinksHubAPI.DataAccess;
 using DrinksHubAPI.Model;
 using Microsoft.AspNetCore.Identity;
-using System.Runtime.CompilerServices;
 
 namespace DrinksHubAPI.Data
 {

@@ -1,0 +1,14 @@
+﻿@page "/logout"
+@using DrinksHub.Services
+@inject AuthService AuthService
+@inject NavigationManager NavManager
+
+<h3>Logout</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        AuthService.Logout(); // Direct authservice to conduct token clearing
+        await InvokeAsync(() =>  NavManager.NavigateTo("/"));  // Redirect to home
+    }
+}

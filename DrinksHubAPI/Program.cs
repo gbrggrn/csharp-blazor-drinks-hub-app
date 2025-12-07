@@ -1,11 +1,9 @@
-
 using DrinksHubAPI.Data;
 using DrinksHubAPI.DataAccess;
 using DrinksHubAPI.DataAccess.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Text;
 
 namespace DrinksHubAPI
@@ -53,16 +51,25 @@ namespace DrinksHubAPI
 
 			var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-			builder.Services.AddDbContext<DrinksHubContext>(options => 
+			builder.Services.AddDbContext<DrinksHubContext>(options =>
 				options.UseSqlServer(connectionString));
+
+			//Configure CORS
+			builder.Services.AddCors(o =>
+			{
+				o.AddPolicy("default", p => p
+					.AllowAnyHeader()
+					.AllowAnyMethod()
+					.AllowAnyOrigin());
+			});
 
 			var app = builder.Build();
 
+			//Seed database
 			using (var scope = app.Services.CreateScope())
 			{
-				var context = scope.ServiceProvider.GetRequiredService<DrinksHubContext>();
-				context.Database.Migrate();
-				await DemoData.InitializeAsync(scope.ServiceProvider);
+				var services = scope.ServiceProvider;
+				await DemoData.InitializeAsync(services);
 			}
 
 			// Configure the HTTP request pipeline.
@@ -71,6 +78,8 @@ namespace DrinksHubAPI
 				app.UseSwagger();
 				app.UseSwaggerUI();
 			}
+
+			app.UseCors("default");
 
 			app.UseHttpsRedirection();
 

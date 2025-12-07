@@ -1,4 +1,4 @@
-@DrinksHubAPI_HostAddress = http://localhost:5119
+@DrinksHubAPI_HostAddress = http://localhost:5037
 
 GET {{DrinksHubAPI_HostAddress}}/weatherforecast/
 Accept: application/json
