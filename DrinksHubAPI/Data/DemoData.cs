@@ -1,5 +1,6 @@
 ﻿using DrinksHubAPI.DataAccess;
 using DrinksHubAPI.Model;
+using DrinksHubAPI.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace DrinksHubAPI.Data
@@ -76,8 +77,8 @@ namespace DrinksHubAPI.Data
 			{
 				Name = "Velvet Vanilla",
 				Description = "A smooth fruit-forward red wine with notes of cherry and vanilla.",
-				Category = "Red wine",
-				Type = "Red",
+				Category = DrinkCategory.Alcoholic,
+				Type = DrinkType.Wine,
 				ImageUrl= "/images/drinks/drink1.png"
 			});
 
@@ -85,8 +86,8 @@ namespace DrinksHubAPI.Data
 			{
 				Name = "Nexus",
 				Description = "A crisp and refreshing sugar-free energy drink designed for clean focus.",
-				Category = "Energy drink",
-				Type = "Suger free",
+				Category = DrinkCategory.NonAlcoholic,
+				Type = DrinkType.Soda,
 				ImageUrl = "/images/drinks/drink2.png"
 			});
 
@@ -94,8 +95,8 @@ namespace DrinksHubAPI.Data
 			{
 				Name = "Golden Dawn Latte",
 				Description = "A mild and creamy coffee drink with subtle caramel sweetness.",
-				Category = "Coffee",
-				Type = "Latte",
+				Category = DrinkCategory.NonAlcoholic,
+				Type = DrinkType.Coffee,
 				ImageUrl = "/images/drinks/drink3.png"
 			});
 
@@ -103,8 +104,8 @@ namespace DrinksHubAPI.Data
 			{
 				Name = "Emerald Oolong",
 				Description = "A lightly floral tea with a balanced, earthy finish.",
-				Category = "Tea",
-				Type = "Citrus",
+				Category = DrinkCategory.NonAlcoholic,
+				Type = DrinkType.Tea,
 				ImageUrl = "/images/drinks/drink4.png"
 			});
 
@@ -112,8 +113,8 @@ namespace DrinksHubAPI.Data
 			{
 				Name = "Citrus Spark",
 				Description = "A bright, zesty soda with natural lemon and lime flavors.",
-				Category = "Soda",
-				Type = "Citrus",
+				Category = DrinkCategory.NonAlcoholic,
+				Type = DrinkType.Juice,
 				ImageUrl = "/images/drinks/drink5.png"
 			});
 

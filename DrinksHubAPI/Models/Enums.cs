@@ -1,13 +1,5 @@
-﻿namespace DrinksHub.Services
+﻿namespace DrinksHubAPI.Models
 {
-	public enum DrinkQueryActions
-	{
-		Search,
-		Sort,
-		Filter,
-		All
-	}
-
 	public enum DrinkSortOption
 	{
 		NameAsc,

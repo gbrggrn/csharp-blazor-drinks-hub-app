@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DrinksHubAPI.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace DrinksHubAPI.Model
 {
@@ -15,12 +16,10 @@ namespace DrinksHubAPI.Model
 		public string Description { get; set; } = string.Empty;
 
 		[Required]
-		[MaxLength(50)]
-		public string Category { get; set; } = string.Empty;
+		public DrinkCategory Category { get; set; }
 
 		[Required]
-		[MaxLength(50)]
-		public string Type { get; set; } = string.Empty;
+		public DrinkType Type { get; set; }
 		public string ImageUrl { get; set; } = string.Empty;
 
 		public List<Review> Reviews { get; set; } = new();

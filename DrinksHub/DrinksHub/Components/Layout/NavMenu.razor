@@ -42,7 +42,13 @@
             if (role == "Admin")
             {
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/adminDashboard">
+                    <NavLink class="nav-link" href="/approveUsers">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Approve new users
+                    </NavLink>
+                </div>
+
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/addDrink">
                         <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Admin Dashboard
                     </NavLink>
                 </div>
@@ -56,14 +62,14 @@
             else
             {
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/logout">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Logout
+                    <NavLink class="nav-link" href="/favorites">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Your Favorites
                     </NavLink>
                 </div>
 
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/favorites">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Your Favorites
+                    <NavLink class="nav-link" href="/logout">
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Logout
                     </NavLink>
                 </div>
             }

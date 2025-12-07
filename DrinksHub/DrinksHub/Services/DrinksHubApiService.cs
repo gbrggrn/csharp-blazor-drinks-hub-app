@@ -24,52 +24,30 @@ namespace DrinksHub.Services
 			}
 		}
 
-		public async Task<List<ResponseDrinkDTO>> GetAllDrinksAsync(List<DrinkQueryActions> actions, 
+		public async Task<List<ResponseDrinkDTO>> GetAllDrinksAsync(
 			DrinkSortOption? sortOption = null, 
-			DrinkFilterOption? filterOption = null,
-			DrinkFilterCategory? filterCategory = null,
-			DrinkFilterType? filterType = null,
-			String? searchParameter = null)
+			DrinkCategory? filterCategory = null,
+			DrinkType? filterType = null,
+			string? searchParam = null)
 		{
+			Console.WriteLine($"{sortOption} - {filterCategory} - {filterType} - {searchParam}");
+			var builtQuery = new List<string>();
 
-			StringBuilder request = new();
+			if (!string.IsNullOrEmpty(searchParam))
+				builtQuery.Add($"search={Uri.EscapeDataString(searchParam)}");
 
-			for (int i = 0; i < actions.Count; i++)
-			{
-				request.Append(i == 0 ? "?" : "&");
+			if (sortOption.HasValue)
+				builtQuery.Add($"sortBy={sortOption.Value}");
 
-				if (actions[i] == DrinkQueryActions.All)
-				{
-					// Early call + return if fetching all
-					return await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>("api/Drinks") ?? new List<ResponseDrinkDTO>();
-				}
-				else if (actions[i] == DrinkQueryActions.Search && !string.IsNullOrEmpty(searchParameter))
-				{
-					request.Append($"{DrinkQueryMapping.MapActions(actions[i])}={Uri.EscapeDataString(searchParameter)}");
-				}
-				else if (actions[i] == DrinkQueryActions.Sort && sortOption.HasValue)
-				{
-					request.Append($"{DrinkQueryMapping.MapActions(actions[i])}={DrinkQueryMapping.MapSortOptions(sortOption)}");
-				}
-				else if (actions[i] == DrinkQueryActions.Filter && filterOption.HasValue)
-				{
-					request.Append($"{DrinkQueryMapping.MapActions(actions[i])}={DrinkQueryMapping.MapFilterOptions(filterOption)}");
-					if (filterCategory != null)
-					{
-						request.Append($"&{DrinkQueryMapping.MapFilterCategory(filterCategory)}");
-					}
-					else if (filterType != null)
-					{
-						request.Append($"&{DrinkQueryMapping.MapFilterType(filterType)}");
-					}
-				}
-			}
+			if (filterCategory.HasValue)
+				builtQuery.Add($"filterCategory={filterCategory.Value}");
 
-			String requestString = request.ToString();
+			if (filterType.HasValue)
+				builtQuery.Add($"filterType={filterType.Value}");
 
-			var drinks = await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>($"api/Drinks{requestString}");
+			var queryString = builtQuery.Count > 0 ? "?" + string.Join("&", builtQuery) : "";
 
-			//If no drinks found, return empty list
+			var drinks = await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>($"api/Drinks{queryString}");
 			return drinks ?? new List<ResponseDrinkDTO>();
 		}
 

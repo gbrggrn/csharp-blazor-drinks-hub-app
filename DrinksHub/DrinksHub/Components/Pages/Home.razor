@@ -1,31 +1,58 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 @using DrinksHub.DTOs
 @using DrinksHub.Services
 @using DrinksHub.Components.Shared
 @inject DrinksHubApiService DrinksHubApiService;
 
-@code {
-	private List<ResponseDrinkDTO> drinks;
-
-	protected override async Task OnInitializedAsync()
-	{
-		List<DrinkQueryActions> actions = new();
-		actions.Add(DrinkQueryActions.All);
-
-		drinks = await DrinksHubApiService.GetAllDrinksAsync(actions);
-	}
-}
-
 <PageTitle>DrinksHub</PageTitle>
+<div class="container mb-4">
+	<h1>DrinksHub!</h1>
 
-<h1>DrinksHub!</h1>
+	If you do not have an account: View drinks
+	<br />
+	If you have an account: Review drinks and add favorites
+	<br />
+	If you have an admin account: Add new drinks and users
+	<br />
+</div>
 
-If you do not have an account: View drinks
-<br />
-If you have an account: Review drinks and add favorites
-<br />
-If you have an admin account: Add new drinks and users
-<br />
+<div class="mb-3">
+	<!-- Searching -->
+	<input class="form-control d-inline-block w-auto" placeholder="Search drinks" @bind="searchString" />
+	<button type="button" class="btn btn-primary ms-2" @onclick="PerformSearch">Search</button>
+</div>
+
+<div class="mb-3">
+	<!-- Filter category -->
+	<select class="form-select d-inline-block w-auto" @bind="categoryOptionString">
+		<option value="">All categories</option>
+		@foreach (var cat in categoryOptions)
+		{
+			<option value="@cat">@cat</option>
+		}
+	</select>
+
+	<!-- Filter type -->
+	<select class="form-select d-inline-block w-auto ms-2" @bind="typeOptionString">
+		<option value="">All types</option>
+		@foreach (var type in typeOptions)
+		{
+			<option value="@type">@type</option>
+		}
+	</select>
+
+	<!-- Sorting -->
+	<select class="form-select d-inline-block w-auto ms-2" @bind="sortOptionString">
+		<option value="">No sorting</option>
+		@foreach (var sort in sortOptions)
+		{
+			<option value="@sort">@sort</option>
+		}
+	</select>
+
+	<button type="button" class="btn btn-secondary ms-2" @onclick="ApplyFilters">Apply</button>
+</div>
 
 <div class="row row-cols-1 row-cols-md-3 g-4">
 	@if (drinks != null)
@@ -40,3 +67,47 @@ If you have an admin account: Add new drinks and users
 		<p>Loading drinks...</p>
 	}
 </div>
+
+@code {
+	private List<ResponseDrinkDTO> drinks = new();
+	private string? searchString;
+	private List<string> categoryOptions = new();
+	private List<string> typeOptions = new();
+	private List<string> sortOptions = new();
+	private string? categoryOptionString;
+	private string? typeOptionString;
+	private string? sortOptionString;
+
+	private DrinkCategory? selectedCategory => Enum.TryParse<DrinkCategory>(categoryOptionString, out var cat) ? cat : null;
+	private DrinkType? selectedDrinkType => Enum.TryParse<DrinkType>(typeOptionString, out var type) ? type : null;
+	private DrinkSortOption? selectedSort => Enum.TryParse<DrinkSortOption>(sortOptionString, out var sort) ? sort : null;
+
+	protected override async Task OnInitializedAsync()
+	{
+		categoryOptions = Enum.GetNames<DrinkCategory>().ToList();
+		typeOptions = Enum.GetNames<DrinkType>().ToList();
+		sortOptions = Enum.GetNames<DrinkSortOption>().ToList();
+
+		await LoadAllDrinks();
+	}
+
+	private async Task LoadAllDrinks()
+	{
+		drinks = await DrinksHubApiService.GetAllDrinksAsync();
+	}
+
+	private async Task PerformSearch()
+	{
+		drinks = await DrinksHubApiService.GetAllDrinksAsync(searchParam: searchString);
+	}
+
+	private async Task ApplyFilters()
+	{
+		drinks = await DrinksHubApiService.GetAllDrinksAsync(
+			searchParam: searchString,
+			filterCategory: selectedCategory,
+			filterType: selectedDrinkType,
+			sortOption: selectedSort
+		);
+	}
+}

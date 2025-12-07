@@ -1,6 +1,7 @@
 ﻿using DrinksHubAPI.DataAccess;
 using DrinksHubAPI.DTOs;
 using DrinksHubAPI.Model;
+using DrinksHubAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -87,10 +88,9 @@ namespace DrinksHubAPI.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetAllDrinks(
 			[FromQuery] string? search,
-			[FromQuery] string? sortBy,
-			[FromQuery] string? filter,
-			[FromQuery] string? filterCategory,
-			[FromQuery] string? filterType)
+			[FromQuery] DrinkSortOption? sortBy,
+			[FromQuery] DrinkCategory? filterCategory,
+			[FromQuery] DrinkType? filterType)
 		{
 			var drinks = _drinksRepository.GetAllQuery();
 
@@ -99,44 +99,42 @@ namespace DrinksHubAPI.Controllers
 			{
 				drinks = drinks.Where(d =>
 					d.Name.Contains(search) ||
-					d.Description.Contains(search) ||
-					d.Category.Contains(search) ||
-					d.Type.Contains(search));
+					d.Description.Contains(search));
 			}
 
 			// Apply sorting
-			if (!string.IsNullOrEmpty(sortBy))
+			if (sortBy.HasValue)
 			{
-				drinks = sortBy.ToLower() switch
+				drinks = sortBy.Value switch
 				{
-					"nameDesc" => drinks.OrderByDescending(d => d.Name),
-					"nameAsc" => drinks.OrderBy(d => d.Name),
-					"categoryDesc" => drinks.OrderByDescending(d => d.Category),
-					"categoryAsc" => drinks.OrderBy(d => d.Category),
-					"typeDesc" => drinks.OrderByDescending(d => d.Type),
-					"typeAsc" => drinks.OrderBy(d => d.Type),
+					DrinkSortOption.NameDesc => drinks.OrderByDescending(d => d.Name),
+					DrinkSortOption.NameAsc => drinks.OrderBy(d => d.Name),
+					DrinkSortOption.CategoryDesc => drinks.OrderByDescending(d => d.Category),
+					DrinkSortOption.CategoryAsc => drinks.OrderBy(d => d.Category),
+					DrinkSortOption.TypeDesc => drinks.OrderByDescending(d => d.Type),
+					DrinkSortOption.TypeAsc => drinks.OrderBy(d => d.Type),
 					_ => drinks // No sorting or invalid sorting parameter
 				};
 			}
 
 			// Apply filtering
-			if (!string.IsNullOrEmpty(filterCategory))
+			if (filterCategory.HasValue)
 			{
-				drinks = drinks.Where(d => d.Category.Equals(filterCategory, StringComparison.OrdinalIgnoreCase));
+				drinks = drinks.Where(d => d.Category == filterCategory.Value);
 			}
 
-			if (!string.IsNullOrEmpty(filterType))
+			if (filterType.HasValue)
 			{
-				drinks = drinks.Where(d => d.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase));
+				drinks = drinks.Where(d => d.Type == filterType.Value);
 			}
 
-			var drinkDtos = await drinks.Select(drinks => new ResponseDrinkDTO
+			var drinkDtos = await drinks.Select(d => new ResponseDrinkDTO
 			{
-				Name = drinks.Name,
-				Description = drinks.Description,
-				Category = drinks.Category,
-				Type = drinks.Type,
-				ImageUrl = drinks.ImageUrl
+				Name = d.Name,
+				Description = d.Description,
+				Category = d.Category,
+				Type = d.Type,
+				ImageUrl = d.ImageUrl
 			}).ToListAsync();
 
 			return Ok(drinkDtos);

@@ -28,25 +28,25 @@
 			_ => throw new NotImplementedException()
 		};
 
-		public static string MapFilterCategory(DrinkFilterCategory? category) => category switch
+		public static string MapFilterCategory(DrinkCategory? category) => category switch
 		{
-			DrinkFilterCategory.Alcoholic => "alcoholic",
-			DrinkFilterCategory.NonAlcoholic => "nonAlcoholic",
+			DrinkCategory.Alcoholic => "alcoholic",
+			DrinkCategory.NonAlcoholic => "nonAlcoholic",
 			_ => throw new NotImplementedException()
 		};
 
-		public static string MapFilterType(DrinkFilterType? type) => type switch
+		public static string MapFilterType(DrinkType? type) => type switch
 		{
-			DrinkFilterType.Cocktail => "cocktail",
-			DrinkFilterType.Mocktail => "mocktail",
-			DrinkFilterType.Smoothie => "smoothie",
-			DrinkFilterType.Juice => "juice",
-			DrinkFilterType.Soda => "soda",
-			DrinkFilterType.Wine => "wine",
-			DrinkFilterType.Beer => "beer",
-			DrinkFilterType.Tea => "tea",
-			DrinkFilterType.Coffee => "coffee",
-			DrinkFilterType.Other => "other",
+			DrinkType.Cocktail => "cocktail",
+			DrinkType.Mocktail => "mocktail",
+			DrinkType.Smoothie => "smoothie",
+			DrinkType.Juice => "juice",
+			DrinkType.Soda => "soda",
+			DrinkType.Wine => "wine",
+			DrinkType.Beer => "beer",
+			DrinkType.Tea => "tea",
+			DrinkType.Coffee => "coffee",
+			DrinkType.Other => "other",
 			_ => throw new NotImplementedException()
 		};
 	}
