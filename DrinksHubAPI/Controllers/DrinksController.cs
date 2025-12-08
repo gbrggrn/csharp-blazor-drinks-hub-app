@@ -14,13 +14,11 @@ namespace DrinksHubAPI.Controllers
 	public class DrinksController : ControllerBase
 	{
 		private readonly IDrinksRepository _drinksRepository;
-		private readonly IUserRepository _userRepository;
 		private readonly IReviewsRepository _reviewsRepository;
 
-		public DrinksController(IDrinksRepository drinksRepository, IUserRepository userRepository, IReviewsRepository reviewsRepository)
+		public DrinksController(IDrinksRepository drinksRepository, IReviewsRepository reviewsRepository)
 		{
 			_drinksRepository = drinksRepository;
-			_userRepository = userRepository;
 			_reviewsRepository = reviewsRepository;
 		}
 
@@ -204,7 +202,7 @@ namespace DrinksHubAPI.Controllers
 			} 
 			catch (KeyNotFoundException kfe)
 			{
-				return NotFound(new { Message = kfe.Message });
+				return NotFound(new { kfe.Message });
 			}
 
 			return Ok(new { Message = $"Drink {drink.Name} successfully updated" });

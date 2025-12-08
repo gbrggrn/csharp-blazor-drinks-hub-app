@@ -110,6 +110,7 @@ namespace DrinksHubAPI.Controllers
 			return Ok(new { Message = $"User: {newUser.Username} created."});
 		}
 
+		//Not implemented yet
 		[Authorize(Roles = "Admin")]
 		[HttpPut("updateUser")]
 		public async Task<IActionResult> UpdateUser(int id, [FromQuery] UpdateUserDTO updateUserDTO)

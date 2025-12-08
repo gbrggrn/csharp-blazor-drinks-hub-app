@@ -18,13 +18,11 @@ namespace DrinksHub.Services
 		{
 			if (loginRequestDTO == null)
 			{
-				Console.WriteLine("LoginAsync: loginRequestDTO is null");
 				return false;
 			}
 
 			var response = await _http.PostAsJsonAsync("api/Auth/login", loginRequestDTO);
 
-			// Debug: log status & raw body
 			var raw = string.Empty;
 			try
 			{
@@ -34,7 +32,6 @@ namespace DrinksHub.Services
 			{
 				Console.WriteLine($"LoginAsync: failed to read response body: {ex.Message}");
 			}
-			Console.WriteLine($"LoginAsync: status={response.StatusCode}, rawBody={raw}");
 
 			if (!response.IsSuccessStatusCode)
 			{
@@ -58,7 +55,6 @@ namespace DrinksHub.Services
 				return false;
 			}
 
-			Console.WriteLine($"LoginAsync: token deserialized, setting token (len={tokenResponse.AccessToken.Length})");
 			_tokenStore.SetToken(tokenResponse.AccessToken);
 
 			return true;
