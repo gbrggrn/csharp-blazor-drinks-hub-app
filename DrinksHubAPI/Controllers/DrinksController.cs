@@ -130,6 +130,7 @@ namespace DrinksHubAPI.Controllers
 
 			var drinkDtos = await drinks.Select(d => new ResponseDrinkDTO
 			{
+				Id = d.Id,
 				Name = d.Name,
 				Description = d.Description,
 				Category = d.Category,
@@ -140,7 +141,7 @@ namespace DrinksHubAPI.Controllers
 			return Ok(drinkDtos);
 		}
 
-		[Authorize]
+		[AllowAnonymous]
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetDrinkById(int id)
 		{
@@ -158,6 +159,7 @@ namespace DrinksHubAPI.Controllers
 
 			var drinkDto = new ResponseDrinkDTO
 			{
+				Id = drink.Id,
 				Name = drink.Name,
 				Description = drink.Description,
 				Category = drink.Category,

@@ -1,7 +1,66 @@
 ﻿@page "/favorites"
+@rendermode InteractiveServer
+@using DrinksHub.DTOs
+@using DrinksHub.Services
+@using System.Security.Claims
+@using System.IdentityModel.Tokens.Jwt
+@using DrinksHub.Components.Shared
+@inject DrinksHubApiService ApiService
+@inject TokenStore TokenStore
+@inject NavigationManager NavManager
 
-<h3>FavoriteDrinks</h3>
+<div class="container">
+    <h3>My Favorite Drinks</h3>
+
+    @if (isLoading)
+    {
+        <p>Loading your favorites...</p>
+    }
+    else if (favoriteDrinks.Count == 0)
+    {
+        <div class="alert alert-info">
+            No drinks marked as favorites yet.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var drink in favoriteDrinks)
+            {
+                <div class="col">
+                    <DrinkCard DrinkDTO="drink" OnChange="LoadFavorites" IsFavoriteMode="true"/>
+                </div>
+            }
+        </div>
+    }
+</div>
 
 @code {
+    private List<ResponseDrinkDTO> favoriteDrinks = new();
+    private bool isLoading = true;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFavorites();
+    }
+
+    private async Task LoadFavorites()
+    {
+        if (string.IsNullOrEmpty(TokenStore.Token))
+        {
+            NavManager.NavigateTo("/login");
+            return;
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(TokenStore.Token);
+        var userIdString = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        if (int.TryParse(userIdString, out int userId))
+        {
+            favoriteDrinks = await ApiService.GetFavoritesAsync(userId);
+        }
+
+        isLoading = false;
+    }
 }

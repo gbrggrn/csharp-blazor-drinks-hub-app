@@ -27,7 +27,19 @@ namespace DrinksHubAPI.Controllers
 		[HttpPost("{drinkId}")]
 		public async Task<IActionResult> AddToFavorites(int drinkId, [FromQuery] int userId)
 		{
-			await _favoritesRepository.AddFavoriteToUserAsync(drinkId, userId);
+			if (userId <= 0 || drinkId <= 0)
+			{
+				return BadRequest();
+			}
+
+			var exists = await _favoritesRepository.GetFavoritesOfUser(userId);
+
+			if (exists.Any(f => f.Id == drinkId))
+			{
+				return Conflict(new { Message = "Already added" });
+			}
+
+			await _favoritesRepository.AddFavoriteToUserAsync(userId, drinkId);
 
 			return Ok(new { Message = "Drink added to favorites." });
 		}
@@ -36,7 +48,7 @@ namespace DrinksHubAPI.Controllers
 		[HttpDelete("{drinkId}")]
 		public async Task<IActionResult> RemoveFromFavorites(int drinkId, [FromQuery] int userId)
 		{
-			await _favoritesRepository.RemoveFavoriteAsync(drinkId, userId);
+			await _favoritesRepository.RemoveFavoriteAsync(userId, drinkId);
 
 			return Ok(new { Message = "Drink removed from favorites." });
 		}

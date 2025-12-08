@@ -1,16 +1,171 @@
 ﻿@using DrinksHub.DTOs
+@using DrinksHub.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.IdentityModel.Tokens.Jwt
+@using System.Security.Claims
+@inject DrinksHubApiService ApiService
+@inject NavigationManager NavManager
+@inject TokenStore TokenStore
 
-<div class="card border border-secondary rounded m-2" style="width: 18rem;">
+@if (favoritesPopup)
+{
+    <div class="alert alert-success position-fixed top-0 end-0 m-3" style="z-index: 1050;">
+        Drink added to favorites!
+    </div>
+}
+
+@if (noFavoritePopup)
+{
+    <div class="alert alert-success position-fixed top-0 end-0 m-3" style="z-index: 1050;">
+        Drink could not be added to favorites.
+    </div>
+}
+
+<div class="card border border-secondary rounded m-2">
     <img src="@DrinkDTO.ImageUrl" class="card-img-top mt-2" alt="@DrinkDTO.Name" style="height: 250px; object-fit: cover;" />
+
     <div class="card-body">
         <h5 class="card-title">@DrinkDTO.Name</h5>
         <p class="card-text">@DrinkDTO.Description</p>
         <span class="badge bg-primary">@DrinkDTO.Category</span>
         <span class="badge bg-secondary">@DrinkDTO.Type</span>
+
+        <div class="mt-3 border-top pt-2">
+            <button class="btn btn-danger btn-sm w-100" @onclick="ViewReviews">See Reviews</button>
+        </div>
+        
+        @if (role == "Admin")
+        {
+            <div class="mt-3 border-top pt-2">
+                <button class="btn btn-danger btn-sm w-100" @onclick="DeleteDrink">Delete Drink</button>
+            </div>
+            <div class="mt-3 border-top pt-2">
+                <button class="btn btn-primary btn-sm w-100" @onclick="UpdateDrink">Update Drink</button>
+            </div>
+        }
+
+        @if (role == "User")
+        {
+            @if (IsFavoriteMode)
+            {
+                <div class="mt-3 border-top pt-2">
+                    <button class="btn btn-warning btn-sm w-100" @onclick="RemoveFavorite">Remove from favorites</button>
+                </div>
+            }
+            else
+            {
+                <div class="mt-3 border-top pt-2">
+                    <button class="btn btn-warning btn-sm w-100" @onclick="AddFavorite">Add as Favorite</button>
+                </div>
+            }
+
+            <div class="mt-3 border-top pt-2">
+                <button class="btn btn-warning btn-sm w-100" @onclick="AddReview">Add Review</button>
+            </div>
+        }
     </div>
 </div>
 
 @code {
-	[Parameter]
-	public ResponseDrinkDTO DrinkDTO { get; set; } = new();
+    [Parameter]
+    public ResponseDrinkDTO DrinkDTO { get; set; } = new();
+
+    [Parameter]
+    public EventCallback OnChange { get; set; }
+    [Parameter]
+    public bool IsFavoriteMode { get; set; } = false;
+
+    private string? role;
+    private bool favoritesPopup = false;
+    private bool noFavoritePopup = false;
+
+    protected override void OnParametersSet()
+    {
+        role = null;
+
+        if (!string.IsNullOrEmpty(TokenStore.Token))
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(TokenStore.Token);
+            role = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        }
+    }
+
+    public async Task RemoveFavorite()
+    {
+        if (!string.IsNullOrEmpty(TokenStore.Token))
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(TokenStore.Token);
+            var userIdString = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (int.TryParse(userIdString, out int userId))
+            {
+                bool success = await ApiService.RemoveFromFavoritesAsync(DrinkDTO.Id, userId);
+
+                if (success)
+                {
+                    await OnChange.InvokeAsync();
+                }
+            }
+        }
+    }
+
+    private async Task DeleteDrink()
+    {
+        bool success = await ApiService.DeleteDrinksAsync(DrinkDTO.Id);
+        if (success)
+        {
+            await OnChange.InvokeAsync();
+        }
+    }
+
+    private void UpdateDrink()
+    {
+        NavManager.NavigateTo($"/editDrink/{DrinkDTO.Id}");
+    }
+
+    private async Task AddFavorite()
+    {
+        if (!string.IsNullOrEmpty(TokenStore.Token))
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(TokenStore.Token);
+            var userIdString = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (int.TryParse(userIdString, out int userId))
+            {
+                bool success = await ApiService.AddToFavoritesAsync(DrinkDTO.Id, userId);
+
+                if (success)
+                {
+                    favoritesPopup = true;
+                    StateHasChanged();
+
+                    await Task.Delay(3000);
+                    favoritesPopup = false;
+                    StateHasChanged();
+                }
+                else
+                {
+                    noFavoritePopup = true;
+                    StateHasChanged();
+
+                    await Task.Delay(3000);
+                    noFavoritePopup = false;
+                    StateHasChanged();
+                }
+            }
+        }
+    }
+
+    private void AddReview()
+    {
+        NavManager.NavigateTo($"/addReview/{DrinkDTO.Id}");
+    }
+
+    private void ViewReviews()
+    {
+        NavManager.NavigateTo($"/viewReview/{DrinkDTO.Id}");
+    }
 }

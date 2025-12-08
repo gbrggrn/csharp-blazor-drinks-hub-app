@@ -30,7 +30,6 @@ namespace DrinksHub.Services
 			DrinkType? filterType = null,
 			string? searchParam = null)
 		{
-			Console.WriteLine($"{sortOption} - {filterCategory} - {filterType} - {searchParam}");
 			var builtQuery = new List<string>();
 
 			if (!string.IsNullOrEmpty(searchParam))
@@ -59,6 +58,8 @@ namespace DrinksHub.Services
 
 		public async Task<bool> CreateDrinkAsync(CreateDrinkDTO drinkDtoIn)
 		{
+			AttachTokenToRequest();
+
 			var response = await _http.PostAsJsonAsync("api/Drinks", drinkDtoIn);
 
 			if (!response.IsSuccessStatusCode)
@@ -71,6 +72,8 @@ namespace DrinksHub.Services
 
 		public async Task<bool> UpdateDrinkAsync(int idIn, UpdateDrinkDTO drinkDtoIn)
 		{
+			AttachTokenToRequest();
+
 			var response = await _http.PutAsJsonAsync($"api/Drinks/{idIn}", drinkDtoIn);
 
 			if (!response.IsSuccessStatusCode)
@@ -83,6 +86,8 @@ namespace DrinksHub.Services
 
 		public async Task<bool> DeleteDrinksAsync(int idIn)
 		{
+			AttachTokenToRequest();
+
 			var response = await _http.DeleteAsync($"api/Drinks/{idIn}");
 
 			if (!response.IsSuccessStatusCode)
@@ -95,6 +100,8 @@ namespace DrinksHub.Services
 
 		public async Task<List<ResponseDrinkDTO>> GetFavoritesAsync(int userId)
 		{
+			AttachTokenToRequest();
+
 			var favorites = await _http.GetFromJsonAsync<List<ResponseDrinkDTO>>($"api/Favorites/{userId}");
 				
 			return favorites ?? new List<ResponseDrinkDTO>();
@@ -102,6 +109,8 @@ namespace DrinksHub.Services
 
 		public async Task<bool> AddToFavoritesAsync(int drinkId, int userId)
 		{
+			AttachTokenToRequest();
+
 			var response = await _http.PostAsync($"api/Favorites/{drinkId}?userId={userId}", null);
 
 			if (!response.IsSuccessStatusCode)
@@ -111,9 +120,11 @@ namespace DrinksHub.Services
 
 			return true;
 		}
-
+		
 		public async Task<bool> RemoveFromFavoritesAsync(int drinkId, int userId)
 		{
+			AttachTokenToRequest();
+
 			var response = await _http.DeleteAsync($"api/Favorites/{drinkId}?userId={userId}");
 
 			if (!response.IsSuccessStatusCode)
@@ -123,5 +134,14 @@ namespace DrinksHub.Services
 
 			return true;
 		}
-    }
+
+		public async Task<bool> AddReviewAsync(int drinkId, CreateReviewDTO reviewDto)
+		{
+			AttachTokenToRequest();
+
+			var response = await _http.PostAsJsonAsync($"api/Drinks/{drinkId}/reviews", reviewDto);
+
+			return response.IsSuccessStatusCode;
+		}
+	}
 }

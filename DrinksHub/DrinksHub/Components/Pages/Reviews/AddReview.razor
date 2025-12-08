@@ -1,0 +1,70 @@
+﻿@page "/addReview/{DrinkId:int}"
+@rendermode InteractiveServer
+@using DrinksHub.DTOs
+@using DrinksHub.Services
+@inject DrinksHubApiService ApiService
+@inject NavigationManager NavManager
+
+<div class="container mt-4" style="max-width: 600px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Write a Review</h4>
+        </div>
+        <div class="card-body">
+
+            <EditForm Model="reviewModel" OnValidSubmit="SubmitReview">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label class="form-label">Title</label>
+                    <InputText class="form-control" @bind-Value="reviewModel.Title" placeholder="Add a title" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Rating</label>
+                    <InputSelect class="form-select" @bind-Value="reviewModel.Rating">
+                        <option value="5">★★★★★ (5 Stars)</option>
+                        <option value="4">★★★★☆ (4 Stars)</option>
+                        <option value="3">★★★☆☆ (3 Stars)</option>
+                        <option value="2">★★☆☆☆ (2 Stars)</option>
+                        <option value="1">★☆☆☆☆ (1 Star)</option>
+                    </InputSelect>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Your Review</label>
+                    <InputTextArea class="form-control" @bind-Value="reviewModel.Content" rows="5" placeholder="Share your thoughts..." />
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit Review</button>
+                </div>
+            </EditForm>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int DrinkId { get; set; }
+
+    private CreateReviewDTO reviewModel = new() { Rating = 5 };
+
+    private async Task SubmitReview()
+    {
+        bool success = await ApiService.AddReviewAsync(DrinkId, reviewModel);
+
+        if (success)
+        {
+            NavManager.NavigateTo($"/");
+        }
+    }
+
+    private void Cancel()
+    {
+        NavManager.NavigateTo($"/");
+    }
+}

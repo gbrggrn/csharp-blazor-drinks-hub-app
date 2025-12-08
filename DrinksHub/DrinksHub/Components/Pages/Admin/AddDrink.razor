@@ -1,9 +1,61 @@
 ﻿@page "/addDrink"
+@rendermode InteractiveServer
+@using DrinksHub.DTOs
+@using DrinksHub.Services
+@inject DrinksHubApiService DrinksHubApiService
+@inject NavigationManager NavManager
 
-<h3>AddDrink</h3>
+<h3>Add New Drink</h3>
 
+<EditForm Model="newDrink" OnValidSubmit="CreateDrink">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
+    <div class="mb-3">
+        <label>Name</label>
+        <InputText class="form-control" @bind-Value="newDrink.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label>Description</label>
+        <InputTextArea class="form-control" @bind-Value="newDrink.Description" />
+    </div>
+
+    <div class="mb-3">
+        <label>Image URL</label>
+        <InputTextArea class="form-control" @bind-Value="newDrink.ImageUrl"/>
+    </div>
+
+    <div class="mb-3">
+        <label>Category</label>
+        <InputSelect class="form-control" @bind-Value="newDrink.Category">
+            @foreach (var cat in Enum.GetValues<DrinkCategory>())
+            {
+                <option value="@cat">@cat</option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="mb-3">
+        <label>Category</label>
+        <InputSelect class="form-control" @bind-Value="newDrink.Type">
+            @foreach (var cat in Enum.GetValues<DrinkType>())
+            {
+                <option value="@cat">@cat</option>
+            }
+        </InputSelect>
+    </div>
+
+    <button type="submit" class="btn btn-success">Add Drink</button>
+</EditForm>
 
 @code {
+    // Initialize the DTO immediately so the form is not null
+    private CreateDrinkDTO newDrink = new();
 
+    private async Task CreateDrink()
+    {
+        await DrinksHubApiService.CreateDrinkAsync(newDrink);
+        NavManager.NavigateTo("/");
+    }
 }

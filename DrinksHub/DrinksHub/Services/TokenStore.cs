@@ -17,7 +17,7 @@ namespace DrinksHub.Services
 			}
 		}
 
-		public event Action OnTokenChanged;
+		public event Action? OnTokenChanged;
 
 		public void SetToken(string token)
 		{

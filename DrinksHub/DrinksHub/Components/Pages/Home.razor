@@ -4,6 +4,7 @@
 @using DrinksHub.Services
 @using DrinksHub.Components.Shared
 @inject DrinksHubApiService DrinksHubApiService;
+@inject TokenStore TokenStore
 
 <PageTitle>DrinksHub</PageTitle>
 <div class="container mb-4">
@@ -59,7 +60,7 @@
 	{
 		@foreach (var drink in drinks)
 		{
-			<DrinkCard DrinkDTO="drink" />	
+			<DrinkCard DrinkDTO="drink" OnChange="LoadAllDrinks" />	
 		}
 	}
 	else
@@ -88,6 +89,8 @@
 		typeOptions = Enum.GetNames<DrinkType>().ToList();
 		sortOptions = Enum.GetNames<DrinkSortOption>().ToList();
 
+		TokenStore.OnTokenChanged += Refresh;
+
 		await LoadAllDrinks();
 	}
 
@@ -109,5 +112,15 @@
 			filterType: selectedDrinkType,
 			sortOption: selectedSort
 		);
+	}
+
+	public void Refresh()
+	{
+		InvokeAsync(StateHasChanged);
+	}
+
+	public void Dispose()
+	{
+		TokenStore.OnTokenChanged -= Refresh;
 	}
 }

@@ -35,10 +35,6 @@
         }
         else
         {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(TokenStore.Token);
-            var role = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
             if (role == "Admin")
             {
                 <div class="nav-item px-3">
@@ -49,7 +45,7 @@
 
                 <div class="nav-item px-3">
                     <NavLink class="nav-link" href="/addDrink">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Admin Dashboard
+                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Add new drink
                     </NavLink>
                 </div>
 
@@ -77,3 +73,18 @@
     </nav>
 </div>
 
+@code {
+    private string? role;
+
+    protected override void OnParametersSet()
+    {
+        role = null;
+
+        if (!string.IsNullOrEmpty(TokenStore.Token))
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(TokenStore.Token);
+            role = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        }
+    }
+}

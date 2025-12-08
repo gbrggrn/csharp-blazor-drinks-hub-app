@@ -1,0 +1,84 @@
+﻿@page "/viewReview/{DrinkId:int}"
+@rendermode InteractiveServer
+@using DrinksHub.DTOs
+@using DrinksHub.Services
+@inject DrinksHubApiService ApiService
+@inject NavigationManager NavManager
+
+<div class="container mt-4">
+    <button class="btn btn-outline-secondary mb-3" @onclick="GoBack">Back to Home</button>
+
+    @if (drink == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Loading details...</p>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="card-title">@drink.Name</h2>
+                <span class="badge bg-primary me-1">@drink.Category</span>
+                <span class="badge bg-secondary">@drink.Type</span>
+                <p class="card-text mt-3 lead">@drink.Description</p>
+            </div>
+        </div>
+
+        <h3>Reviews (@(drink.Reviews?.Count ?? 0))</h3>
+
+        @if (drink.Reviews != null && drink.Reviews.Any())
+        {
+            <div class="row row-cols-1 g-3">
+                @foreach (var review in drink.Reviews)
+                {
+                    <div class="col">
+                        <div class="card border-light shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">@review.Title</h5>
+                                    <span class="text-warning fw-bold">
+                                        @RenderStars(review.Rating)
+                                    </span>
+                                </div>
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    By @(string.IsNullOrEmpty(review.Username) ? "Anonymous" : review.Username)
+                                </h6>
+                                <p class="card-text">@review.Content</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-secondary">
+                No reviews for this drink.
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int DrinkId { get; set; }
+
+    private ResponseDrinkDTO? drink;
+
+    protected override async Task OnInitializedAsync()
+    {
+        drink = await ApiService.GetDrinkByIdAsync(DrinkId);
+    }
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("/");
+    }
+
+    private string RenderStars(int rating)
+    {
+        return new string('★', rating) + new string('☆', 5 - rating);
+    }
+}
